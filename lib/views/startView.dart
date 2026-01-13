@@ -2,14 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../app/routes.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class StartView extends StatefulWidget {
+  const StartView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<StartView> createState() => _StartViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _StartViewState extends State<StartView> {
   @override
   void initState() {
     super.initState();
