@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../views/loginView.dart';
 import '../views/registerView.dart';
 import '../views/rootShell.dart';
-import '../views/homeView.dart';
+import '../views/homeView/homeView.dart';
 import '../views/searchView.dart';
 import '../views/storageView.dart';
 import '../views/mypageView.dart';
