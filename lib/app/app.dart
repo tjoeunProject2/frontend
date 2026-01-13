@@ -19,8 +19,16 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8F5FF), // 피그마 배경색 반영
         // fontFamily: 'Pretendard', // 나중에 폰트 추가 시 활성화
       ),
-      initialRoute: AppRoutes.home,
-      onGenerateRoute: AppRoutes.generateRoute,
+      // initialRoute: AppRoutes.home,
+      // onGenerateRoute: AppRoutes.generateRoute,
+
+
+
+      initialRoute: AppRoutes.root,
+      routes: AppRoutes.routes,
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
     );
   }
 }

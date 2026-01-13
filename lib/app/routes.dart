@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
-import '../views/homeView.dart';
 import '../views/loginView.dart';
 import '../views/registerView.dart';
+import '../views/rootShell.dart';
+import '../views/homeView.dart';
+import '../views/searchView.dart';
+import '../views/storageView.dart';
+import '../views/mypageView.dart';
 
 class AppRoutes {
-  static const String home = '/';
+
+    static const String root = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String home = '/home';
+  static const String search = '/search';
+  static const String storage = '/storage';
+  static const String mypage = '/mypage';
 
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case home:
-        return MaterialPageRoute(builder: (_) => const HomeView());
-      case login:
-        return MaterialPageRoute(builder: (_) => const LoginView());
-      case register:
-        return MaterialPageRoute(builder: (_) => const RegisterView());
-      default:
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(body: Center(child: Text('Error'))),
-        );
-    }
-  }
+  static final Map<String, WidgetBuilder> routes = {
+    root: (_) => const RootShell(),
+    login: (_) => const LoginView(),
+    register: (_) => const RegisterView(),
+    homeView: (_) => const HomeView(),
+    search: (_) => const SearchView(),
+    storage: (_) => const StorageView(),
+    mypage: (_) => const MyPageView(),
+  };
 }
