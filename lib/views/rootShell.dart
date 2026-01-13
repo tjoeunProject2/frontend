@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../common/widgets/navigate.dart';
-import 'homeView.dart';
+import 'homeView/homeView.dart';
 import 'searchView.dart';
 import 'storageView.dart';
 import 'mypageView.dart';
