@@ -21,7 +21,7 @@ class _LoginViewState extends State<LoginView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Color(0xFF9E7AFF)),
-          onPressed: () {Navigator.pushReplacementNamed(context, AppRoutes.home);} ,
+          onPressed: () {Navigator.pushReplacementNamed(context, AppRoutes.homeView);} ,
         ),
         title: const Text('로그인', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,

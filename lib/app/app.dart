@@ -26,9 +26,6 @@ class MyApp extends StatelessWidget {
 
       initialRoute: AppRoutes.root,
       routes: AppRoutes.routes,
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
     );
   }
 }
