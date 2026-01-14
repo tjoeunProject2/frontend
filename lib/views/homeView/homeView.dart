@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
- import '../../common/widgets/search_widget.dart';
+import '../../common/widgets/search_widget.dart';
 import 'homeHeader.dart';
 import 'homeTitle.dart';
 import 'seasonalFlowerCard.dart';

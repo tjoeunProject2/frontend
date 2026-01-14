@@ -75,17 +75,41 @@ class LoginView extends ConsumerWidget {
 
             // 3. 로그인 버튼
             ElevatedButton(
-              onPressed: vm.isFormValid
-                  ? () => Navigator.pushReplacementNamed(context, AppRoutes.rootshell)
+              onPressed: vm.isFormValid && !vm.isLoading
+                  ? () async {
+                      final response = await vm.login();
+                      // TODO: 개발 완료 후 success 체크 로직 복구 필요 
+                      // if (response.success && context.mounted) {
+                      if (context.mounted) {
+                        Navigator.pushReplacementNamed(context, AppRoutes.rootshell);
+                      }
+                      if (vm.errorMessage != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(vm.errorMessage!),
+                            backgroundColor: Colors.red[700],
+                          ),
+                        );
+                      }
+                    }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: vm.isFormValid ? const Color(0xFF9E7AFF) : Colors.grey[300],
+                backgroundColor: vm.isFormValid && !vm.isLoading ? const Color(0xFF9E7AFF) : Colors.grey[300],
                 minimumSize: const Size(double.infinity, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 elevation: 0,
               ),
-              child: const Text('로그인',
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: vm.isLoading
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('로그인',
+                      style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 16),
 

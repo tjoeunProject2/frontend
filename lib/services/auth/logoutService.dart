@@ -1,20 +1,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'auth_interceptor.dart';
+import '../storage/token_storage.dart';
 
 class LogoutService {
   static const String baseUrl = 'http://localhost:8080/api';
+  final _interceptor = AuthInterceptor();
+  final _tokenStorage = TokenStorage();
 
-  Future<LogoutResponse> logout(String accessToken) async {
+  Future<LogoutResponse> logout() async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/logout'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
+      final response = await _interceptor.authenticatedRequest(
+        request: (headers) => http.post(
+          Uri.parse('$baseUrl/auth/logout'),
+          headers: headers,
+        ),
       );
 
       if (response.statusCode == 200) {
+        // 로그아웃 성공 시 로컬 토큰 삭제
+        await _tokenStorage.deleteAllTokens();
         return LogoutResponse(success: true);
       } else {
         final error = jsonDecode(response.body);

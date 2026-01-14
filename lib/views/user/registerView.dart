@@ -55,6 +55,44 @@ class RegisterView extends ConsumerWidget {
                         ),
                         const SizedBox(height: 24),
 
+                        // --- 닉네임 입력 + 중복 확인 ---
+                        const Text('닉네임', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            FloritTextField(
+                              controller: vm.nicknameController,
+                              hintText: '닉네임을 입력해 주세요',
+                              errorText: vm.nicknameError,
+                              onChanged: (_) {
+                                vm.isNicknameChecked = false;
+                                vm.nicknameError = null;
+                                vm.updateUI();
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12.0),
+                              child: ElevatedButton(
+                                onPressed: vm.isLoading ? null : vm.checkNickname,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: vm.isNicknameChecked ? Colors.green : const Color(0xFF9E7AFF),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  minimumSize: const Size(0, 32),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  vm.isNicknameChecked ? '확인 완료' : '중복 확인',
+                                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
                         // --- 이메일 입력 + 중복 확인 ---
                         const Text('이메일', style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
@@ -64,20 +102,29 @@ class RegisterView extends ConsumerWidget {
                             FloritTextField(
                               controller: vm.emailController,
                               hintText: '이메일을 입력해 주세요',
+                              errorText: vm.emailError,
+                              onChanged: (_) {
+                                vm.isEmailChecked = false;
+                                vm.emailError = null;
+                                vm.updateUI();
+                              },
                             ),
                             Padding(
                               padding: const EdgeInsets.only(right: 12.0),
                               child: ElevatedButton(
-                                onPressed: () {}, // 중복 확인 로직
+                                onPressed: vm.isLoading ? null : vm.checkEmail,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF9E7AFF),
+                                  backgroundColor: vm.isEmailChecked ? Colors.green : const Color(0xFF9E7AFF),
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                   minimumSize: const Size(0, 32),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                   elevation: 0,
                                 ),
-                                child: const Text('중복 확인', style: TextStyle(fontSize: 12, color: Colors.white)),
+                                child: Text(
+                                  vm.isEmailChecked ? '확인 완료' : '중복 확인',
+                                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                                ),
                               ),
                             ),
                           ],
@@ -130,16 +177,40 @@ class RegisterView extends ConsumerWidget {
 
                         // 가입 완료 버튼
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, AppRoutes.rootshell);
-                          },
+                          onPressed: vm.isFormValid && !vm.isLoading
+                              ? () async {
+                                  final response = await vm.signup();
+                                  // TODO: 개발 완료 후 success 체크 로직 복구 필요
+                                  // if (response.success && context.mounted) {
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(context, AppRoutes.rootshell);
+                                  }
+                                  if (vm.errorMessage != null && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(vm.errorMessage!),
+                                        backgroundColor: Colors.red[700],
+                                      ),
+                                    );
+                                  }
+                                }
+                              : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF9E7AFF),
+                            backgroundColor: vm.isFormValid && !vm.isLoading ? const Color(0xFF9E7AFF) : Colors.grey[300],
                             minimumSize: const Size(double.infinity, 56),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                             elevation: 0,
                           ),
-                          child: const Text('가입 완료', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: vm.isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text('가입 완료', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(height: 24),
 
