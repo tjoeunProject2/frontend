@@ -7,6 +7,7 @@ class FloritTextField extends StatelessWidget {
   final TextEditingController? controller; // 입력을 제어할 컨트롤러 추가 가능
   final String? errorText; // 에러 메시지 추가
   final ValueChanged<String>? onChanged; // 입력값 변경 이벤트 추가
+  final TextInputType? keyboardType;
 
   const FloritTextField({
     super.key,
@@ -16,6 +17,7 @@ class FloritTextField extends StatelessWidget {
     this.controller,
     this.errorText,
     this.onChanged,
+    this.keyboardType,
   });
 
   @override
@@ -24,6 +26,7 @@ class FloritTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       onChanged: onChanged,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
         errorText: errorText,
