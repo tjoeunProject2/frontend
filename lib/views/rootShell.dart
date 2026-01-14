@@ -17,7 +17,7 @@ class _RootShellState extends State<RootShell> {
 
   final _pages = const [
     HomeView(),
-    Center(child: Text('자도', style: TextStyle(fontSize: 24))), // TODO: 자도 뷰 구현
+    Center(child: Text('지도', style: TextStyle(fontSize: 24))), // TODO: 지도 뷰 구현
     SearchView(),
     StorageView(),
     MyPageView(),
