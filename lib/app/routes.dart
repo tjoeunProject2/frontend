@@ -3,7 +3,7 @@ import '../views/user/loginView.dart';
 import '../views/user/registerView.dart';
 import '../views/rootShell.dart';
 import '../views/homeView/homeView.dart';
-import '../views/searchView.dart';
+import '../views/searchView/searchView.dart';
 import '../views/storageView.dart';
 import '../views/mypageView.dart';
 import "../views/startView.dart";
