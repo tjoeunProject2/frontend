@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../views/loginView.dart';
-import '../views/registerView.dart';
+import '../views/user/loginView.dart';
+import '../views/user/registerView.dart';
 import '../views/rootShell.dart';
 import '../views/homeView/homeView.dart';
 import '../views/searchView.dart';
