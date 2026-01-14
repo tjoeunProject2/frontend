@@ -24,11 +24,11 @@ class HomeView extends StatelessWidget {
                 onNotificationTap: () {},
               ),
               const SizedBox(height: 24),
-              
+
               // 타이틀
               const HomeTitle(),
               const SizedBox(height: 24),
-              
+
               // 검색바
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -38,7 +38,7 @@ class HomeView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // 계절의 꽃 섹션
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -67,7 +67,7 @@ class HomeView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // 꽃 카드 리스트
               SizedBox(
                 height: 280,
@@ -93,7 +93,7 @@ class HomeView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // 오늘의 꽃 배너
               TodayFlowerBanner(
                 flowerName: '해바라기',
