@@ -59,7 +59,7 @@ class _RootShellState extends State<RootShell> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF7C4DFF).withOpacity(0.6),
+                      color: const Color(0xFF7C4DFF).withValues(alpha: 0.6),
                       blurRadius: 20,
                       offset: const Offset(0, 14),
                       spreadRadius: 0,
