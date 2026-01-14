@@ -49,7 +49,7 @@ class AppNavigation extends StatelessWidget {
                 child: _buildNavItem(
                   index: 3,
                   icon: Icons.bookmark_border,
-                  selectedIcon: Icons.bookmark,
+                    selectedIcon: Icons.bookmark,
                   label: '보관함',
                 ),
               ),
