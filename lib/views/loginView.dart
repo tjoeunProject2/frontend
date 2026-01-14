@@ -21,7 +21,7 @@ class _LoginViewState extends State<LoginView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Color(0xFF9E7AFF)),
-          onPressed: () {Navigator.pushReplacementNamed(context, AppRoutes.homeView);} ,
+          onPressed: () {Navigator.pushReplacementNamed(context, AppRoutes.root);} ,
         ),
         title: const Text('로그인', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
@@ -49,7 +49,7 @@ class _LoginViewState extends State<LoginView> {
             const SizedBox(height: 8),
             TextField(
               decoration: InputDecoration(
-                hintText: '이메일 주소를 입력해주세요',
+                hintText: '이메일을 입력해주세요',
                 filled: true, fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: const BorderSide(color: Color(0xFFE0D7FF))),
@@ -96,7 +96,7 @@ class _LoginViewState extends State<LoginView> {
             // 로그인 버튼
             ElevatedButton(
               onPressed: () {
-
+                Navigator.pushReplacementNamed(context, AppRoutes.rootshell);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF9E7AFF),
