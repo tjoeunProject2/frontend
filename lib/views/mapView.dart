@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kakaomap_webview/kakaomap_webview.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../viewmodels/map_vm.dart';
 
 class MapView extends ConsumerStatefulWidget {
@@ -11,6 +11,9 @@ class MapView extends ConsumerStatefulWidget {
 }
 
 class _MapViewState extends ConsumerState<MapView> {
+  GoogleMapController? _mapController;
+  Set<Marker> _markers = {};
+
   @override
   void initState() {
     super.initState();
@@ -20,25 +23,54 @@ class _MapViewState extends ConsumerState<MapView> {
     });
   }
 
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+  void _updateMarkers() {
+    final vm = ref.read(mapViewModelProvider);
+    _markers = vm.shops.map((shop) {
+      return Marker(
+        markerId: MarkerId(shop.name),
+        position: LatLng(shop.lat, shop.lng),
+        onTap: () {
+          vm.selectShop(shop);
+        },
+      );
+    }).toSet();
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(mapViewModelProvider);
 
+    // 마커 업데이트
+    if (vm.shops.isNotEmpty) {
+      _updateMarkers();
+    }
+
     return Scaffold(
       body: Stack(
         children: [
-          // 카카오 지도
+          // Google Maps
           vm.currentLocation == null
               ? const Center(child: CircularProgressIndicator())
-              : KakaoMapView(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  kakaoMapKey: 'YOUR_KAKAO_MAP_KEY', // TODO: 카카오맵 JavaScript Key 필요
-                  lat: vm.currentLocation!.latitude,
-                  lng: vm.currentLocation!.longitude,
-                  showMapTypeControl: true,
-                  showZoomControl: true,
-                  customOverlay: _buildMarkers(vm.shops),
+              : GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      vm.currentLocation!.latitude,
+                      vm.currentLocation!.longitude,
+                    ),
+                    zoom: 15,
+                  ),
+                  markers: _markers,
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  buildingsEnabled: false,
+                  trafficEnabled: false,
                 ),
 
           // 상단 검색바
@@ -192,6 +224,16 @@ class _MapViewState extends ConsumerState<MapView> {
               onPressed: () async {
                 // 현재 위치 다시 불러오기
                 await vm.loadCurrentLocation();
+                if (_mapController != null && vm.currentLocation != null) {
+                  _mapController!.animateCamera(
+                    CameraUpdate.newLatLng(
+                      LatLng(
+                        vm.currentLocation!.latitude,
+                        vm.currentLocation!.longitude,
+                      ),
+                    ),
+                  );
+                }
               },
               backgroundColor: Colors.white,
               child: const Icon(Icons.my_location, color: Color(0xFF7C4DFF)),
@@ -200,21 +242,5 @@ class _MapViewState extends ConsumerState<MapView> {
         ],
       ),
     );
-  }
-
-  String _buildMarkers(List<dynamic> shops) {
-    // 꽃집 마커들을 JavaScript 코드로 생성
-    final markers = shops.map((shop) {
-      return '''
-        var marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(${shop.lat}, ${shop.lng}),
-          map: map
-        });
-        kakao.maps.event.addListener(marker, 'click', function() {
-          window.flutter_inappwebview.callHandler('onTapMarker', '${shop.name}');
-        });
-      ''';
-    }).join('\n');
-    return markers;
   }
 }

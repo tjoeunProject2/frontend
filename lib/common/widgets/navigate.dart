@@ -39,9 +39,9 @@ class AppNavigation extends StatelessWidget {
               Expanded(
                 child: _buildNavItem(
                   index: 1,
-                  icon: Icons.auto_stories_outlined,
-                  selectedIcon: Icons.auto_stories,
-                  label: '자도',
+                  icon: Icons.map_outlined,
+                  selectedIcon: Icons.map,
+                  label: '지도',
                 ),
               ),
               const Expanded(child: SizedBox()), // 검색 버튼 자리는 비워둠

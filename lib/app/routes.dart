@@ -7,6 +7,7 @@ import '../views/searchView/searchView.dart';
 import '../views/storageView.dart';
 import '../views/mypageView.dart';
 import "../views/startView.dart";
+import '../views/mapView.dart';
 
 class AppRoutes {
 
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String mypage = '/mypage';
   static const String start = './start';
   static const String rootshell = './rootshell';
+  static const String map = '/map';
 
   static final Map<String, WidgetBuilder> routes = {
     root: (_) => const StartView(),
@@ -29,5 +31,6 @@ class AppRoutes {
     storage: (_) => const StorageView(),
     mypage: (_) => const MyPageView(),
     rootshell: (_) => const RootShell(),
+    map: (_) => const MapView(),
   };
 }
