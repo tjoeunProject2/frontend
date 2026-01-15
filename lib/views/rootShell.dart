@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../common/widgets/navigate.dart';
 import 'homeView/homeView.dart';
+import 'mapView.dart';
 import 'searchView/searchView.dart';
 import 'storageView.dart';
 import 'mypageView.dart';
@@ -17,7 +18,7 @@ class _RootShellState extends State<RootShell> {
 
   final _pages = const [
     HomeView(),
-    Center(child: Text('지도', style: TextStyle(fontSize: 24))), // TODO: 지도 뷰 구현
+    MapView(),
     SearchView(),
     StorageView(),
     MyPageView(),
