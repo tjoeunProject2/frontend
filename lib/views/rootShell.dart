@@ -4,7 +4,7 @@ import 'homeView/homeView.dart';
 import 'mapView.dart';
 import 'searchView/searchView.dart';
 import 'storageView.dart';
-import 'mypageView.dart';
+import 'mypageView/mypageView.dart';
 
 class RootShell extends StatefulWidget {
   const RootShell({super.key});
