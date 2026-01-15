@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/location/location_service.dart';
 import '../services/shops/nearbyService.dart';
 import '../models/flower_shop.dart';
@@ -121,11 +122,4 @@ class MapViewModel extends ChangeNotifier {
     currentLocation = LatLng(lat, lng);
     await loadNearbyShops(lat, lng);
   }
-}
-
-class LatLng {
-  final double latitude;
-  final double longitude;
-
-  const LatLng(this.latitude, this.longitude);
 }
