@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/mypage_vm.dart';
 import '../user/loginView.dart';
 import 'profileCard.dart';
+import 'profileView.dart';
+import 'settingsView/settingsView.dart';
 import 'menuItem.dart';
 
 class MyPageView extends ConsumerWidget {
@@ -25,10 +27,18 @@ class MyPageView extends ConsumerWidget {
 
 
             // 1. 프로필 카드 분리
-            ProfileCard(
-              name: viewModel.userName,
-              bio: viewModel.userBio,
-              primaryColor: purpleTheme,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileView()),
+                );
+              },
+              child: ProfileCard(
+                name: viewModel.userName,
+                bio: viewModel.userBio,
+                primaryColor: purpleTheme,
+              ),
             ),
 
             const SizedBox(height: 40),
@@ -54,32 +64,21 @@ class MyPageView extends ConsumerWidget {
             const SizedBox(height: 12),
 
             MyPageMenuItem(
-              icon: Icons.notifications_none,
-              title: '알림 설정',
+              icon: Icons.settings_outlined,
+              title: '설정',
               iconColor: purpleTheme,
-              onTap: viewModel.navigateToNotificationSettings,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsView()),
+                );
+              },
             ),
             MyPageMenuItem(
               icon: Icons.help_outline,
               title: '고객 센터',
               iconColor: purpleTheme,
               onTap: viewModel.navigateToCustomerService,
-            ),
-
-            const SizedBox(height: 20),
-            _buildLogoutButton(
-              context,
-              onTap: () {
-                // 1. ViewModel의 로그아웃 처리 (데이터 초기화 등)
-                viewModel.logout();
-
-                // 2. 로그인 페이지로 이동
-                // pushAndRemoveUntil을 써야 뒤로가기를 눌러도 마이페이지로 안 돌아옵니다.
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginView()), // 로그인 페이지 클래스명
-                      (route) => false,
-                );
-              },
             ),
 
             const SizedBox(height: 40),
@@ -112,18 +111,6 @@ class MyPageView extends ConsumerWidget {
     return Text(
       label,
       style: const TextStyle(fontSize: 14, color: Color(0xFFD1C4FF), fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context, {required VoidCallback onTap}) {
-    return TextButton(
-      onPressed: onTap,
-      style: TextButton.styleFrom(
-        minimumSize: const Size(double.infinity, 50),
-        backgroundColor: const Color(0xFFF5F5F5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      ),
-      child: const Text('로그아웃', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
     );
   }
 }
