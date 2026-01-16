@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/mypage_vm.dart';
+import '../../viewmodels/profile_vm.dart';
 import '../user/loginView.dart';
 import 'profileCard.dart';
 import 'profileView.dart';
 import 'settingsView/settingsView.dart';
+import 'notificationView.dart';
 import 'menuItem.dart';
 
 class MyPageView extends ConsumerWidget {
@@ -12,7 +14,8 @@ class MyPageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(myPageViewModelProvider);
+    final myPageViewModel = ref.watch(myPageViewModelProvider);
+    final profileViewModel = ref.watch(profileViewModelProvider);
     const purpleTheme = Color(0xFF9E7AFF);
 
     return Scaffold(
@@ -35,8 +38,8 @@ class MyPageView extends ConsumerWidget {
                 );
               },
               child: ProfileCard(
-                name: viewModel.userName,
-                bio: viewModel.userBio,
+                name: profileViewModel.userName,
+                bio: profileViewModel.userBio,
                 primaryColor: purpleTheme,
               ),
             ),
@@ -50,19 +53,30 @@ class MyPageView extends ConsumerWidget {
               icon: Icons.favorite,
               title: '좋아요 표시한 꽃',
               iconColor: purpleTheme,
-              onTap: viewModel.navigateToLikedFlowers,
+              onTap: () => myPageViewModel.navigateToLikedFlowers(context),
             ),
             MyPageMenuItem(
               icon: Icons.local_florist,
               title: '가고 싶은 꽃집',
               iconColor: purpleTheme,
-              onTap: viewModel.navigateToStoreList,
+              onTap: () => myPageViewModel.navigateToStoreList(context),
             ),
 
             const SizedBox(height: 32),
             _buildSectionLabel('서비스안내'),
             const SizedBox(height: 12),
 
+            MyPageMenuItem(
+              icon: Icons.notifications_none,
+              title: '알림 설정',
+              iconColor: purpleTheme,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NotificationSettingsView()),
+                );
+              },
+            ),
             MyPageMenuItem(
               icon: Icons.settings_outlined,
               title: '설정',
@@ -73,12 +87,6 @@ class MyPageView extends ConsumerWidget {
                   MaterialPageRoute(builder: (context) => const SettingsView()),
                 );
               },
-            ),
-            MyPageMenuItem(
-              icon: Icons.help_outline,
-              title: '고객 센터',
-              iconColor: purpleTheme,
-              onTap: viewModel.navigateToCustomerService,
             ),
 
             const SizedBox(height: 40),
@@ -94,16 +102,6 @@ class MyPageView extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       title: const Text('마이 페이지', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-      actions: [
-        IconButton(
-          icon: CircleAvatar(
-            backgroundColor: const Color(0xFFF3EFFF),
-            child: Icon(Icons.settings, color: color, size: 20),
-          ),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 16),
-      ],
     );
   }
 

@@ -8,6 +8,8 @@ import '../views/storageView.dart';
 import '../views/mypageView/mypageView.dart';
 import "../views/startView.dart";
 import '../views/mapView.dart';
+import '../views/mypageView/likedShopsView.dart';
+import '../views/mypageView/likedFlowersView.dart';
 
 class AppRoutes {
 
@@ -21,6 +23,8 @@ class AppRoutes {
   static const String start = './start';
   static const String rootshell = './rootshell';
   static const String map = '/map';
+  static const String likedShops = '/liked-shops';
+  static const String likedFlowers = '/liked-flowers';
 
   static final Map<String, WidgetBuilder> routes = {
     root: (_) => const StartView(),
@@ -32,5 +36,7 @@ class AppRoutes {
     mypage: (_) => const MyPageView(),
     rootshell: (_) => const RootShell(),
     map: (_) => const MapView(),
+    likedShops: (_) => const LikedShopsView(),
+    likedFlowers: (_) => const LikedFlowersView(),
   };
 }

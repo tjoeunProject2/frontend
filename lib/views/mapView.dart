@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../viewmodels/map_vm.dart';
+import '../viewmodels/liked_shops_vm.dart';
 
 class MapView extends ConsumerStatefulWidget {
   const MapView({super.key});
@@ -43,6 +44,7 @@ class _MapViewState extends ConsumerState<MapView> {
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(mapViewModelProvider);
+    final likedShopsVm = ref.watch(likedShopsViewModelProvider);
 
     // 마커 업데이트
     if (vm.shops.isNotEmpty) {
@@ -195,21 +197,62 @@ class _MapViewState extends ConsumerState<MapView> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        // TODO: 길찾기 또는 상세 페이지로 이동
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7C4DFF),
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              likedShopsVm.toggleLike(vm.selectedShop!);
+                            },
+                            icon: Icon(
+                              likedShopsVm.isLiked(vm.selectedShop!.id)
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                            ),
+                            label: Text(
+                              likedShopsVm.isLiked(vm.selectedShop!.id)
+                                  ? '좋아요 취소'
+                                  : '가고 싶어요',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: likedShopsVm.isLiked(vm.selectedShop!.id)
+                                  ? Colors.pink
+                                  : Colors.white,
+                              foregroundColor: likedShopsVm.isLiked(vm.selectedShop!.id)
+                                  ? Colors.white
+                                  : Colors.black,
+                              side: BorderSide(
+                                color: likedShopsVm.isLiked(vm.selectedShop!.id)
+                                    ? Colors.pink
+                                    : Colors.grey.shade300,
+                              ),
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        '길찾기',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // TODO: 길찾기 또는 상세 페이지로 이동
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF7C4DFF),
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              '길찾기',
+                              style: TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
