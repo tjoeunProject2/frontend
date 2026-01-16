@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/liked_shops_vm.dart';
+import '../../viewmodels/map_vm.dart';
+import '../../viewmodels/navigation_vm.dart';
 import '../../models/flower_shop.dart';
 
 class LikedShopsView extends ConsumerWidget {
@@ -156,23 +158,33 @@ class LikedShopsView extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: 지도에서 위치 보기 또는 길찾기
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: purpleTheme,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            Consumer(
+              builder: (context, ref, child) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // MapViewModel에 꽃집 위치 설정
+                      final mapVm = ref.read(mapViewModelProvider);
+                      mapVm.moveToShop(shop);
+                      // 먼저 rootShell로 돌아가기
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                      // 그 다음 지도 탭으로 전환 (1번 인덱스)
+                      ref.read(navigationViewModelProvider).goToMap();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: purpleTheme,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      '위치 보기',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  '위치 보기',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
