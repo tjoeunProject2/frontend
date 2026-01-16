@@ -119,5 +119,5 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 .idea/*.xml
-123
+
 android/app/src/main/AndroidManifest.xml

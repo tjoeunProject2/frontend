@@ -125,4 +125,15 @@ class MapViewModel extends ChangeNotifier {
     currentLocation = LatLng(lat, lng);
     await loadNearbyShops(lat, lng);
   }
+
+  // 특정 꽃집으로 이동 (마이페이지에서 위치보기)
+  void moveToShop(FlowerShop shop) {
+    currentLocation = LatLng(shop.lat, shop.lng);
+    selectedShop = shop;
+    // shops에 해당 꽃집이 없으면 추가
+    if (!shops.any((s) => s.id == shop.id)) {
+      shops.add(shop);
+    }
+    notifyListeners();
+  }
 }
