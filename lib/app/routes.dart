@@ -4,7 +4,7 @@ import '../views/user/registerView.dart';
 import '../views/rootShell.dart';
 import '../views/homeView/homeView.dart';
 import '../views/searchView/searchView.dart';
-import '../views/storageView.dart';
+import '../views/storageView/storageView.dart';
 import '../views/mypageView/mypageView.dart';
 import "../views/startView.dart";
 import '../views/mapView.dart';

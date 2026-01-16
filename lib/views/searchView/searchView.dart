@@ -16,7 +16,7 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   // 최근 검색어 리스트 상태
-  List<String> recentSearches = ['부모님 생신', '화이트데이 로맨틱'];
+  List<String> recentSearches = [];
 
   // 검색어 추가 함수
   void _addSearch(String text) {

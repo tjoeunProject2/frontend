@@ -5,7 +5,7 @@ import '../viewmodels/navigation_vm.dart';
 import 'homeView/homeView.dart';
 import 'mapView.dart';
 import 'searchView/searchView.dart';
-import 'storageView.dart';
+import 'storageView/storageView.dart';
 import 'mypageView/mypageView.dart';
 
 class RootShell extends ConsumerStatefulWidget {
