@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../common/widgets/navigate.dart';
+import '../viewmodels/navigation_vm.dart';
 import 'homeView/homeView.dart';
 import 'mapView.dart';
 import 'searchView/searchView.dart';
 import 'storageView.dart';
 import 'mypageView/mypageView.dart';
 
-class RootShell extends StatefulWidget {
+class RootShell extends ConsumerStatefulWidget {
   const RootShell({super.key});
 
   @override
-  State<RootShell> createState() => _RootShellState();
+  ConsumerState<RootShell> createState() => _RootShellState();
 }
 
-class _RootShellState extends State<RootShell> {
-  int _index = 0;
+class _RootShellState extends ConsumerState<RootShell> {
 
   final _pages = const [
     HomeView(),
@@ -26,10 +27,12 @@ class _RootShellState extends State<RootShell> {
 
   @override
   Widget build(BuildContext context) {
+    final navVm = ref.watch(navigationViewModelProvider);
+    
     return Scaffold(
       extendBody: true,
       body: IndexedStack(
-        index: _index,
+        index: navVm.currentIndex,
         children: _pages,
       ),
       bottomNavigationBar: Stack(
@@ -37,20 +40,16 @@ class _RootShellState extends State<RootShell> {
         alignment: Alignment.bottomCenter,
         children: [
           AppNavigation(
-            currentIndex: _index,
+            currentIndex: navVm.currentIndex,
             onTap: (i) {
-              setState(() {
-                _index = i;
-              });
+              ref.read(navigationViewModelProvider).setIndex(i);
             },
           ),
           Positioned(
             bottom: 60,
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  _index = 2;
-                });
+                ref.read(navigationViewModelProvider).setIndex(2);
               },
               child: Container(
                 width: 72,

@@ -68,7 +68,7 @@ class MyPageView extends ConsumerWidget {
 
             MyPageMenuItem(
               icon: Icons.notifications_none,
-              title: '알림 설정',
+              title: '알림 목록',
               iconColor: purpleTheme,
               onTap: () {
                 Navigator.push(
