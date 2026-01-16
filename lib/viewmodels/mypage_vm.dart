@@ -32,7 +32,13 @@ class MyPageViewModel extends ChangeNotifier {
   }
 
   // 메뉴 클릭 시 이동 로직들
-  void navigateToLikedFlowers() => print("좋아요 표시한 꽃으로 이동");
-  void navigateToStoreList() => print("가고 싶은 꽃집으로 이동");
+  void navigateToLikedFlowers(BuildContext context) {
+    Navigator.pushNamed(context, '/liked-flowers');
+  }
+  
+  void navigateToStoreList(BuildContext context) {
+    Navigator.pushNamed(context, '/liked-shops');
+  }
+  
   void navigateToCustomerService() => print("고객 센터로 이동");
 }

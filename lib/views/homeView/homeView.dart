@@ -1,15 +1,46 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../common/widgets/search_widget.dart';
+import '../../viewmodels/profile_vm.dart';
+import '../../viewmodels/liked_flowers_vm.dart';
+import '../../models/flower.dart';
 import 'homeHeader.dart';
 import 'homeTitle.dart';
 import 'seasonalFlowerCard.dart';
 import 'todayFlowerBanner.dart';
+import '../mypageView/notificationView.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final viewModel = ref.watch(profileViewModelProvider);
+    final likedFlowersVm = ref.watch(likedFlowersViewModelProvider);
+    
+    // 샘플 꽃 데이터
+    final flower1 = Flower(
+      id: 'flower_1',
+      name: 'Chrysanthemum',
+      koreanName: '국화',
+      season: '가을',
+      occasion: '졸업식',
+      tag: '클래식',
+      imageUrl: 'assets/flower1.jpg',
+      description: '새로운 시작을 축하하는 꽃',
+    );
+    
+    final flower2 = Flower(
+      id: 'flower_2',
+      name: 'Rose',
+      koreanName: '장미',
+      season: '사계절',
+      occasion: '기념일',
+      tag: '큐레이션',
+      imageUrl: 'assets/flower2.jpg',
+      description: '영원한 사랑을 상징하는 꽃',
+    );
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -19,9 +50,14 @@ class HomeView extends StatelessWidget {
             children: [
               // 헤더
               HomeHeader(
-                userName: '송예림님',
+                userName: '${viewModel.userName}님',
                 hasNotification: true,
-                onNotificationTap: () {},
+                onNotificationTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotificationSettingsView()),
+                  );
+                },
               ),
               const SizedBox(height: 24),
 
@@ -74,20 +110,26 @@ class HomeView extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  children: const [
+                  children: [
                     SeasonalFlowerCard(
-                      image: 'assets/flower1.jpg',
-                      tag: '클래식',
-                      title: '새로운 시작',
-                      occasion: '졸업식',
+                      flowerId: flower1.id,
+                      image: flower1.imageUrl,
+                      tag: flower1.tag,
+                      title: flower1.koreanName,
+                      occasion: flower1.occasion,
+                      isLiked: likedFlowersVm.isLiked(flower1.id),
+                      onLikeTap: () => likedFlowersVm.toggleLike(flower1),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     SeasonalFlowerCard(
-                      image: 'assets/flower2.jpg',
-                      tag: '큐레이션',
-                      title: '영원한 사랑',
-                      occasion: '기념일',
+                      flowerId: flower2.id,
+                      image: flower2.imageUrl,
+                      tag: flower2.tag,
+                      title: flower2.koreanName,
+                      occasion: flower2.occasion,
                       isDark: true,
+                      isLiked: likedFlowersVm.isLiked(flower2.id),
+                      onLikeTap: () => likedFlowersVm.toggleLike(flower2),
                     ),
                   ],
                 ),

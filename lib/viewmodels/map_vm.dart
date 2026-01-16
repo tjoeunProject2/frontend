@@ -70,6 +70,7 @@ class MapViewModel extends ChangeNotifier {
       // 임시 하드코딩: 강남역 주변 꽃집 샘플 데이터
       shops = [
         FlowerShop(
+          id: 'shop_1',
           name: '강남 플라워샵',
           address: '서울 강남구 강남대로 396',
           lat: 37.498500,
@@ -79,6 +80,7 @@ class MapViewModel extends ChangeNotifier {
           placeUrl: 'http://place.map.kakao.com/example1',
         ),
         FlowerShop(
+          id: 'shop_2',
           name: '신논현 꽃집',
           address: '서울 강남구 강남대로 지하 396',
           lat: 37.504500,
@@ -88,6 +90,7 @@ class MapViewModel extends ChangeNotifier {
           placeUrl: 'http://place.map.kakao.com/example2',
         ),
         FlowerShop(
+          id: 'shop_3',
           name: '논현동 플라워',
           address: '서울 강남구 논현로 507',
           lat: 37.510000,
