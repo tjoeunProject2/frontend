@@ -14,6 +14,8 @@ tags:
     description: 인증/회원 관련
   - name: Shops
     description: 꽃집 관련
+  - name: Flower
+    description: 꽃 추천 및 검색 관련
 
 components:
   securitySchemes:
@@ -181,6 +183,54 @@ components:
           type: string
           description: 카카오 지도 장소 URL
           example: http://place.map.kakao.com/2062274720
+
+    EmbeddingResponse:
+      type: object
+      required: [semanticQuery, vectorLength, vectorPreview]
+      properties:
+        semanticQuery:
+          type: string
+          description: 의미 토큰 기반 생성된 검색 문장
+          example: 축하 따뜻한 졸업 친구
+        vectorLength:
+          type: integer
+          description: 임베딩 벡터 차원 수
+          example: 768
+        vectorPreview:
+          type: array
+          description: 임베딩 벡터 일부 미리보기
+          items:
+            type: number
+            format: float
+          example: [-0.0123, 0.0841, -0.0342, 0.0194]
+
+    CardMessageRequest:
+      type: object
+      required: [flowerName, floriography, query]
+      properties:
+        flowerName:
+          type: string
+          description: 사용자가 선택한 꽃 이름
+          example: 프리지아
+        floriography:
+          type: array
+          description: 해당 꽃의 꽃말
+          items:
+            type: string
+          example: ["순수", "우정"]
+        query:
+          type: string
+          description: 상황 / 의도 문장 (프론트에서 전달)
+          example: 졸업 축하
+
+    CardMessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: 생성된 카드 메시지
+          example: 순수한 우정을 상징하는 프리지아처럼, 앞으로의 길도 맑고 빛나길 바랍니다. 졸업을 진심으로 축하합니다.
 
   responses:
     UnauthorizedError:
@@ -439,6 +489,67 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /test/deepseek/embedding:
+    post:
+      tags: [Flower]
+      summary: 꽃 추천 검색 임베딩 생성
+      description: |
+        검색어를 의미 기반으로 해석하여 임베딩 벡터를 생성합니다.
+        검색어 → 의미 해석 → 의미 문장 생성 → Ollama 로컬 임베딩 벡터 생성
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 사용자 검색어
+          example: 졸업하는 친구에게 줄 꽃 추천
+      responses:
+        "200":
+          description: 임베딩 벡터 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingResponse"
+              example:
+                semanticQuery: 축하 따뜻한 졸업 친구
+                vectorLength: 768
+                vectorPreview: [-0.0123, 0.0841, -0.0342, 0.0194]
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cards/message:
+    post:
+      tags: [Flower]
+      summary: 카드 메시지 생성
+      description: |
+        선택한 꽃과 꽃말, 상황을 기반으로 카드 메시지를 AI로 생성합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardMessageRequest"
+      responses:
+        "200":
+          description: 카드 메시지 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardMessageResponse"
+              example:
+                message: 순수한 우정을 상징하는 프리지아처럼, 앞으로의 길도 맑고 빛나길 바랍니다. 졸업을 진심으로 축하합니다.
+        "400":
+          description: 잘못된 요청
           content:
             application/json:
               schema:

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'auth_interceptor.dart';
+import 'authInterceptor.dart';
 import '../storage/token_storage.dart';
 
 class LogoutService {

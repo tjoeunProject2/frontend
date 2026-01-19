@@ -73,7 +73,7 @@ class MyPageView extends ConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const NotificationSettingsView()),
+                  MaterialPageRoute(builder: (context) => const NotificationView()),
                 );
               },
             ),

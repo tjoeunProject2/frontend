@@ -19,11 +19,7 @@ class SettingsViewModel extends ChangeNotifier {
   bool get pushNotificationEnabled => _settings.pushNotificationEnabled;
   bool get flowerRecommendationEnabled => _settings.flowerRecommendationEnabled;
   bool get shopNewsEnabled => _settings.shopNewsEnabled;
-  String get languageCode => _settings.languageCode;
-  String get theme => _settings.theme;
-  bool get autoDownloadEnabled => _settings.autoDownloadEnabled;
   String get appVersion => _settings.appVersion;
-  String get language => _settings.language;
 
   // 알림 토글
   void togglePushNotification(bool value) {
@@ -45,28 +41,6 @@ class SettingsViewModel extends ChangeNotifier {
     print('꽃집 소식: $value');
   }
 
-  void toggleAutoDownload(bool value) {
-    _settings = _settings.copyWith(autoDownloadEnabled: value);
-    notifyListeners();
-    print('자동 다운로드: $value');
-  }
-
-  // 언어 설정
-  void setLanguage(String code) {
-    _settings = _settings.copyWith(languageCode: code);
-    notifyListeners();
-    // TODO: 앱 언어 변경 적용
-    print('언어 변경: $code');
-  }
-
-  // 테마 설정
-  void setTheme(String themeMode) {
-    _settings = _settings.copyWith(theme: themeMode);
-    notifyListeners();
-    // TODO: 테마 변경 적용
-    print('테마 변경: $themeMode');
-  }
-
   // 개인정보
   void openPrivacyPolicy(BuildContext context) {
     Navigator.push(
@@ -80,11 +54,6 @@ class SettingsViewModel extends ChangeNotifier {
       context,
       MaterialPageRoute(builder: (context) => const TermsOfServiceView()),
     );
-  }
-
-  void clearCache() {
-    print('캐시 삭제');
-    // TODO: 실제 캐시 삭제 로직
   }
 
   // 앱 정보

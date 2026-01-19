@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../viewmodels/settings_vm.dart';
+import '../../../viewmodels/notification_settings_vm.dart';
 import '../termsOfServiceView.dart';
 import '../../user/loginView.dart';
 import 'settingSectionTitle.dart';
@@ -14,6 +15,7 @@ class SettingsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vm = ref.watch(settingsViewModelProvider);
+    final notificationSettings = ref.watch(notificationSettingsProvider);
     const purpleTheme = Color(0xFF7C4DFF);
 
     return Scaffold(
@@ -36,24 +38,20 @@ class SettingsView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-
             // 알림 설정
-            const SettingSectionTitle('알림'),
+            const SettingSectionTitle('푸시 알림'),
             const SizedBox(height: 12),
             SettingSwitchItem(
               icon: Icons.notifications_outlined,
               title: '푸시 알림',
               subtitle: '새로운 소식과 알림을 받습니다',
               value: vm.pushNotificationEnabled,
-              onChanged: (value) => vm.togglePushNotification(value),
-              activeColor: purpleTheme,
-            ),
-            SettingSwitchItem(
-              icon: Icons.local_florist_outlined,
-              title: '꽃 추천 알림',
-              subtitle: '오늘의 꽃 추천을 받습니다',
-              value: vm.flowerRecommendationEnabled,
-              onChanged: (value) => vm.toggleFlowerRecommendation(value),
+              onChanged: (value) async {
+                vm.togglePushNotification(value);
+                // 푸시 알림과 함께 퇴근길 꽃집, 오늘의 꽃 알림도 제어
+                await notificationSettings.toggleDailyReminder(value);
+                vm.toggleFlowerRecommendation(value);
+              },
               activeColor: purpleTheme,
             ),
             SettingSwitchItem(
@@ -79,11 +77,6 @@ class SettingsView extends ConsumerWidget {
               icon: Icons.description_outlined,
               title: '서비스 이용약관',
               onTap: () => vm.openTermsOfService(context),
-            ),
-            SettingMenuItem(
-              icon: Icons.security_outlined,
-              title: '데이터 관리',
-              onTap: () => SettingsDialogs.showDataManagementDialog(context, vm),
             ),
 
             const SizedBox(height: 32),

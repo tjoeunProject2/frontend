@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth/signupService.dart';
 import '../services/auth/checkEmailService.dart';
-import '../services/auth/chackNicknameService.dart';
+import '../services/auth/checkNicknameService.dart';
 
 // RegisterViewModel을 위한 Provider
 final registerViewModelProvider = ChangeNotifierProvider<RegisterViewModel>((ref) {

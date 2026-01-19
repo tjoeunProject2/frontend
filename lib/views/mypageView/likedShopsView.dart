@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/liked_shops_vm.dart';
 import '../../viewmodels/map_vm.dart';
 import '../../viewmodels/navigation_vm.dart';
-import '../../models/flower_shop.dart';
+import '../../models/flowerShop.dart';
 
 class LikedShopsView extends ConsumerWidget {
   const LikedShopsView({super.key});

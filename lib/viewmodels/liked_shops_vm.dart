@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/flower_shop.dart';
+import '../models/flowerShop.dart';
 
 final likedShopsViewModelProvider =
     ChangeNotifierProvider<LikedShopsViewModel>((ref) {

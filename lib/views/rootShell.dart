@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../common/widgets/navigate.dart';
 import '../viewmodels/navigation_vm.dart';
 import 'homeView/homeView.dart';
-import 'mapView.dart';
+import 'mapView/mapView.dart';
 import 'searchView/searchView.dart';
 import 'storageView/storageView.dart';
 import 'mypageView/mypageView.dart';

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../models/flower_shop.dart';
+import '../../models/flowerShop.dart';
 
 class NearbyService {
   static const String baseUrl = 'http://localhost:8080/api';
