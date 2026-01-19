@@ -7,7 +7,7 @@ import '../views/searchView/searchView.dart';
 import '../views/storageView/storageView.dart';
 import '../views/mypageView/mypageView.dart';
 import "../views/startView.dart";
-import '../views/mapView.dart';
+import '../views/mapView/mapView.dart';
 import '../views/mypageView/likedShopsView.dart';
 import '../views/mypageView/likedFlowersView.dart';
 

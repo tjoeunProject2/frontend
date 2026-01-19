@@ -55,7 +55,7 @@ class HomeView extends ConsumerWidget {
                 onNotificationTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const NotificationSettingsView()),
+                    MaterialPageRoute(builder: (context) => const NotificationView()),
                   );
                 },
               ),
