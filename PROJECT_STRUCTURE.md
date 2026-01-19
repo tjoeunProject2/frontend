@@ -104,10 +104,13 @@ viewmodels/
 ### 📦 models/ - 데이터 모델
 ```
 models/
+├── bugReport.dart                # 버그 신고 모델
+├── favorite.dart                 # 즐겨찾기 모델
 ├── flower.dart                   # 꽃 모델
-├── flower_shop.dart              # 꽃집 모델
+├── flowerShop.dart               # 꽃집 모델
 ├── settingsModel.dart            # 설정 모델
-└── user.dart                     # 사용자 모델
+├── user.dart                     # 사용자 모델
+└── viewHistory.dart              # 조회 기록 모델
 ```
 
 ### 🔧 services/ - 비즈니스 로직 & API
@@ -116,14 +119,44 @@ services/
 ├── notification_service.dart     # 로컬 알림 서비스 (매일 오후 6시)
 │
 ├── auth/                         # 인증 관련 API
-│   ├── auth_interceptor.dart     # HTTP 인터셉터 (토큰 자동 추가)
+│   ├── authInterceptor.dart      # HTTP 인터셉터 (토큰 자동 추가)
 │   ├── loginService.dart         # 로그인 API
 │   ├── signupService.dart        # 회원가입 API
 │   ├── logoutService.dart        # 로그아웃 API
 │   ├── refreshService.dart       # 토큰 갱신 API
 │   ├── findEmailService.dart     # 이메일 찾기 API
 │   ├── checkEmailService.dart    # 이메일 중복 확인 API
-│   └── chackNicknameService.dart # 닉네임 중복 확인 API
+│   └── checkNicknameService.dart # 닉네임 중복 확인 API
+│
+├── flowers/                      # 꽃 정보 관련 API
+│   ├── getAllFlowersService.dart        # 전체 꽃 목록 조회 API
+│   ├── getTodayFlowerService.dart       # 오늘의 꽃 조회 API
+│   ├── getSeasonFlowersService.dart     # 계절별 꽃 조회 API
+│   ├── getFlowerDetailService.dart      # 꽃 상세 정보 조회 API
+│   ├── searchFlowerByKeywordService.dart # 키워드로 꽃 검색 API
+│   └── searchFlowerByNameService.dart   # 이름으로 꽃 검색 API
+│
+├── search/                       # 검색 관련 API
+│   ├── semanticSearchService.dart       # 시맨틱 검색 API
+│   ├── getRecentSearchService.dart      # 최근 검색어 조회 API
+│   ├── deleteSearchService.dart         # 검색어 삭제 API
+│   ├── deleteAllSearchService.dart      # 검색어 전체 삭제 API
+│   └── embeddingService.dart            # 검색어 임베딩 생성 API
+│
+├── favorites/                    # 즐겨찾기 관련 API
+│   ├── getFavoritesService.dart         # 즐겨찾기 목록 조회 API
+│   ├── addFavoriteService.dart          # 즐겨찾기 추가 API
+│   ├── deleteFavoriteService.dart       # 즐겨찾기 삭제 API
+│   └── checkFavoriteService.dart        # 즐겨찾기 여부 확인 API
+│
+├── viewHistory/                  # 조회 기록 관련 API
+│   ├── getViewHistoryService.dart       # 조회 기록 목록 API
+│   ├── addViewHistoryService.dart       # 조회 기록 저장 API
+│   ├── deleteViewHistoryService.dart    # 조회 기록 삭제 API
+│   └── deleteAllViewHistoryService.dart # 조회 기록 전체 삭제 API
+│
+├── cards/                        # 카드 메시지 관련 API
+│   └── generateCardMessageService.dart  # AI 카드 메시지 생성 API
 │
 ├── location/                     # 위치 서비스
 │   └── location_service.dart     # 현재 위치 가져오기
@@ -246,21 +279,52 @@ Provider 종류:
 - settingsViewModelProvider
 - storageViewModelProvider
 ```
-
----
-
-## 🎯 API 엔드포인트 (flowerApi.yaml)
+## 🎯 API 엔드포인트 (swagger.yaml)
 
 ```
-인증:
-- POST /api/auth/signup           # 회원가입
-- POST /api/auth/login            # 로그인
-- POST /api/auth/refresh          # 토큰 갱신
-- POST /api/auth/logout           # 로그아웃
-- POST /api/auth/find-email       # 이메일 찾기
-- GET  /api/auth/check-email      # 이메일 중복 확인
-- GET  /api/auth/check-nickname   # 닉네임 중복 확인
+인증 (Auth):
+- POST /api/auth/signup              # 회원가입
+- POST /api/auth/login               # 로그인
+- POST /api/auth/refresh             # 토큰 갱신
+- POST /api/auth/logout              # 로그아웃
+- POST /api/auth/find-email          # 이메일 찾기
+- POST /api/auth/reset-password      # 비밀번호 재설정
+- POST /api/auth/check-email         # 이메일 중복 확인
+- POST /api/auth/check-nickname      # 닉네임 중복 확인
 
+꽃 정보 (Flowers):
+- GET  /api/flowers                  # 전체 꽃 목록 조회
+- GET  /api/flowers/today            # 오늘의 꽃 조회
+- GET  /api/flowers/season           # 계절별 꽃 조회
+- GET  /api/flowers/{flowerId}       # 꽃 상세 정보 조회
+- GET  /api/flowers/keyword          # 키워드로 꽃 검색
+- GET  /api/flowers/search           # 꽃 이름 검색
+
+검색 (Search):
+- POST /api/search                   # 시맨틱 검색
+- GET  /api/search/recent            # 최근 검색어 조회
+- DELETE /api/search/recent          # 검색어 삭제
+- DELETE /api/search/recent/all      # 검색어 전체 삭제
+- POST /api/test/deepseek/embedding  # 검색어 임베딩 생성
+
+즐겨찾기 (Favorites):
+- GET  /api/favorites                # 즐겨찾기 목록 조회
+- POST /api/favorites                # 즐겨찾기 추가
+- DELETE /api/favorites/{flowerId}   # 즐겨찾기 삭제
+- GET  /api/favorites/check/{flowerId} # 즐겨찾기 여부 확인
+
+조회 기록 (View History):
+- GET  /api/view-history             # 조회 기록 목록
+- POST /api/view-history             # 조회 기록 저장
+- DELETE /api/view-history/{viewId}  # 조회 기록 삭제
+- DELETE /api/view-history           # 조회 기록 전체 삭제
+
+꽃집 (Shops):
+- GET  /api/shops/nearby             # 주변 꽃집 검색
+
+카드 메시지 (Cards):
+- POST /api/cards/message            # AI 카드 메시지 생성
+```
 꽃집:
 - GET  /api/shops/nearby          # 주변 꽃집 검색
 ```

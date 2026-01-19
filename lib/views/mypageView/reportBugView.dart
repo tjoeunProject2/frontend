@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../viewmodels/report_bug_vm.dart';
+import '../../models/bugReport.dart';
 
-class ReportBugView extends StatefulWidget {
+class ReportBugView extends ConsumerStatefulWidget {
   const ReportBugView({super.key});
 
   @override
-  State<ReportBugView> createState() => _ReportBugViewState();
+  ConsumerState<ReportBugView> createState() => _ReportBugViewState();
 }
 
-class _ReportBugViewState extends State<ReportBugView> {
+class _ReportBugViewState extends ConsumerState<ReportBugView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String _selectedCategory = '버그 신고';
-
-  final List<String> _categories = [
-    '버그 신고',
-    '기능 개선 제안',
-    '사용 문의',
-    '기타',
-  ];
 
   @override
   void dispose() {
@@ -31,21 +26,43 @@ class _ReportBugViewState extends State<ReportBugView> {
     super.dispose();
   }
 
-  void _submitReport() {
+  void _submitReport() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: 이메일 전송 로직 구현
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('문제 신고가 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.'),
-          backgroundColor: Color(0xFF6B4EFF),
-        ),
+      final vm = ref.read(reportBugViewModelProvider);
+      
+      final report = BugReport(
+        category: vm.selectedCategory,
+        name: _nameController.text,
+        email: _emailController.text,
+        title: _titleController.text,
+        description: _descriptionController.text,
       );
-      Navigator.pop(context);
+
+      final success = await vm.submitReport(report);
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('문제 신고가 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.'),
+            backgroundColor: Color(0xFF6B4EFF),
+          ),
+        );
+        Navigator.pop(context);
+      } else if (mounted && vm.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final vm = ref.watch(reportBugViewModelProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('문제 신고'),
@@ -81,7 +98,7 @@ class _ReportBugViewState extends State<ReportBugView> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                value: vm.selectedCategory,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -90,16 +107,16 @@ class _ReportBugViewState extends State<ReportBugView> {
                   fillColor: Colors.grey[50],
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                items: _categories.map((category) {
+                items: vm.categories.map((category) {
                   return DropdownMenuItem(
                     value: category,
                     child: Text(category),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value!;
-                  });
+                  if (value != null) {
+                    vm.setCategory(value);
+                  }
                 },
               ),
               const SizedBox(height: 24),
@@ -237,7 +254,7 @@ class _ReportBugViewState extends State<ReportBugView> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _submitReport,
+                  onPressed: vm.isLoading ? null : _submitReport,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6B4EFF),
                     foregroundColor: Colors.white,
@@ -246,13 +263,22 @@ class _ReportBugViewState extends State<ReportBugView> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    '제출하기',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: vm.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          '제출하기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),

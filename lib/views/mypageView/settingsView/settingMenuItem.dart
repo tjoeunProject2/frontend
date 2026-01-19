@@ -28,7 +28,7 @@ class SettingMenuItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withAlpha(8),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -39,7 +39,7 @@ class SettingMenuItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (textColor ?? const Color(0xFF7C4DFF)).withOpacity(0.1),
+                color: (textColor ?? const Color(0xFF7C4DFF)).withAlpha(26),
                 shape: BoxShape.circle,
               ),
               child: Icon(
