@@ -1,0 +1,60 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../models/flower.dart';
+
+class SearchFlowerByKeywordService {
+  static const String baseUrl = 'http://localhost:8080/api';
+
+  Future<SearchFlowerByKeywordResponse> searchFlowerByKeyword({
+    required String accessToken,
+    required String keyword,
+  }) async {
+    try {
+      final uri = Uri.parse('$baseUrl/flowers/keyword')
+          .replace(queryParameters: {'keyword': keyword});
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final flowers = data
+            .map((json) => Flower.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        return SearchFlowerByKeywordResponse(
+          success: true,
+          flowers: flowers,
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        return SearchFlowerByKeywordResponse(
+          success: false,
+          message: error['message'] ?? '키워드 검색에 실패했습니다.',
+        );
+      }
+    } catch (e) {
+      return SearchFlowerByKeywordResponse(
+        success: false,
+        message: '네트워크 오류가 발생했습니다: $e',
+      );
+    }
+  }
+}
+
+class SearchFlowerByKeywordResponse {
+  final bool success;
+  final List<Flower>? flowers;
+  final String? message;
+
+  SearchFlowerByKeywordResponse({
+    required this.success,
+    this.flowers,
+    this.message,
+  });
+}
