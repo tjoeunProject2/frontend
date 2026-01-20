@@ -29,26 +29,24 @@ class _SearchWidgetState extends State<SearchWidget> {
   void initState() {
     super.initState();
     _controller = widget.controller ?? TextEditingController();
-    _controller.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
-    _debounce?.cancel();
     if (widget.controller == null) {
       _controller.dispose();
     }
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(widget.debounceDuration, () {
-      if (_controller.text.isNotEmpty && widget.onSearch != null) {
-        widget.onSearch!(_controller.text);
-      }
-    });
-  }
+  // void _onSearchChanged() {
+  //   if (_debounce?.isActive ?? false) _debounce!.cancel();
+  //   _debounce = Timer(widget.debounceDuration, () {
+  //     if (_controller.text.isNotEmpty && widget.onSearch != null) {
+  //       widget.onSearch!(_controller.text);
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +94,11 @@ class _SearchWidgetState extends State<SearchWidget> {
               ),
               onTap: widget.onTap,
               textInputAction: TextInputAction.search,
+              // 엔터 눌렀을 때만 실행
               onSubmitted: (value) {
-                _debounce?.cancel();
-                if (widget.onSearch != null) widget.onSearch!(value);
+                if (value.trim().isNotEmpty && widget.onSearch != null) {
+                  widget.onSearch!(value);
+                }
               },
             ),
           ),
@@ -109,8 +109,8 @@ class _SearchWidgetState extends State<SearchWidget> {
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
-                _debounce?.cancel();
-                if (widget.onSearch != null) {
+                // 찾기 버튼을 눌렀을 때만 실행
+                if (_controller.text.isNotEmpty && widget.onSearch != null) {
                   widget.onSearch!(_controller.text);
                 }
               },

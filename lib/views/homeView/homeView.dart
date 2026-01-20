@@ -9,6 +9,8 @@ import 'homeTitle.dart';
 import 'seasonalFlowerCard.dart';
 import 'todayFlowerBanner.dart';
 import '../mypageView/notificationView.dart';
+import '../../app/routes.dart';
+import '../../viewmodels/search_vm.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -17,6 +19,7 @@ class HomeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(profileViewModelProvider);
     final likedFlowersVm = ref.watch(likedFlowersViewModelProvider);
+    final searchVm = ref.read(searchViewModelProvider);
     
     // 샘플 꽃 데이터
     final flower1 = Flower(
@@ -70,7 +73,17 @@ class HomeView extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: SearchWidget(
                   hintText: '어떤 상황인가요? (예: 친구 결혼식)',
-                  onTap: () {},
+                  onSearch: (value) async {
+                    if(value.trim().isNotEmpty) {
+                      // ViewModel의 검색 함수 호출
+                      await searchVm.search(value);
+                      Navigator.pushNamed(
+                          context,
+                          AppRoutes.recommendation,
+                          arguments: value,
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 32),
