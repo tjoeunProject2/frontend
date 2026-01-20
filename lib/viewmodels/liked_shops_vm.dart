@@ -1,20 +1,60 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/flowerShop.dart';
+import '../services/storage/token_storage.dart';
 
 final likedShopsViewModelProvider =
     ChangeNotifierProvider<LikedShopsViewModel>((ref) {
-  return LikedShopsViewModel();
+  final vm = LikedShopsViewModel();
+  vm.loadLikedShops();
+  return vm;
 });
 
 class LikedShopsViewModel extends ChangeNotifier {
+  static const String _storageKey = 'liked_shops';
+  final _tokenStorage = TokenStorage();
+  
   final List<FlowerShop> _likedShops = [];
 
   List<FlowerShop> get likedShops => List.unmodifiable(_likedShops);
 
+  // SharedPreferences에서 데이터 로드
+  Future<void> loadLikedShops() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_storageKey);
+      
+      if (jsonString != null) {
+        final List<dynamic> jsonList = jsonDecode(jsonString);
+        _likedShops.clear();
+        _likedShops.addAll(
+          jsonList.map((json) => FlowerShop.fromJson(json)).toList(),
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('꽃집 좋아요 로드 오류: $e');
+    }
+  }
+
+  // SharedPreferences에 데이터 저장
+  Future<void> _saveLikedShops() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = jsonEncode(
+        _likedShops.map((shop) => shop.toJson()).toList(),
+      );
+      await prefs.setString(_storageKey, jsonString);
+    } catch (e) {
+      if (kDebugMode) debugPrint('꽃집 좋아요 저장 오류: $e');
+    }
+  }
+
   // 좋아요 토글
-  void toggleLike(FlowerShop shop) {
+  Future<void> toggleLike(FlowerShop shop) async {
     final index = _likedShops.indexWhere((s) => s.id == shop.id);
     
     if (index >= 0) {
@@ -28,7 +68,7 @@ class LikedShopsViewModel extends ChangeNotifier {
     }
     
     notifyListeners();
-    // TODO: API 호출하여 서버에 저장
+    await _saveLikedShops();
   }
 
   // 좋아요 상태 확인
@@ -37,11 +77,11 @@ class LikedShopsViewModel extends ChangeNotifier {
   }
 
   // 좋아요 제거
-  void removeLike(String shopId) {
+  Future<void> removeLike(String shopId) async {
     _likedShops.removeWhere((shop) => shop.id == shopId);
     notifyListeners();
     if (kDebugMode) debugPrint('좋아요 제거: $shopId');
-    // TODO: API 호출하여 서버에서 제거
+    await _saveLikedShops();
   }
 
   // 좋아요 개수

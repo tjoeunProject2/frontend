@@ -12,14 +12,17 @@ class GetFlowerDetailService {
     required String accessToken,
     required int flowerId,
   }) async {
-    // 꽃 ID별 캐시 키
     final cacheKey = 'flower_detail_$flowerId';
     
     // 캐시 확인
     final cached = _cache.get<Flower>(cacheKey);
     if (cached != null) {
-      return GetFlowerDetailResponse(success: true, flower: cached);
+      return GetFlowerDetailResponse(
+        success: true,
+        flower: cached,
+      );
     }
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/flowers/$flowerId'),
@@ -33,7 +36,7 @@ class GetFlowerDetailService {
         final data = jsonDecode(response.body);
         final flower = Flower.fromJson(data);
         
-        // 30분 캐싱
+        // 30분 캐시 저장
         _cache.set(cacheKey, flower, const Duration(minutes: 30));
         
         return GetFlowerDetailResponse(

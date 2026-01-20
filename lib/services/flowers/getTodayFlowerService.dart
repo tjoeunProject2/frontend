@@ -7,14 +7,19 @@ import '../cache/cache_service.dart';
 class GetTodayFlowerService {
   static const String baseUrl = 'http://localhost:8080/api';
   final _cache = CacheService();
-  static const String cacheKey = 'today_flower';
 
   Future<GetTodayFlowerResponse> getTodayFlower(String accessToken) async {
+    const cacheKey = 'today_flower';
+    
     // 캐시 확인
     final cached = _cache.get<Flower>(cacheKey);
     if (cached != null) {
-      return GetTodayFlowerResponse(success: true, flower: cached);
+      return GetTodayFlowerResponse(
+        success: true,
+        flower: cached,
+      );
     }
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/flowers/today'),
@@ -28,7 +33,7 @@ class GetTodayFlowerService {
         final data = jsonDecode(response.body);
         final flower = Flower.fromJson(data);
         
-        // 24시간 캐싱
+        // 24시간 캐시 저장
         _cache.set(cacheKey, flower, const Duration(hours: 24));
         
         return GetTodayFlowerResponse(

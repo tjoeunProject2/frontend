@@ -12,14 +12,17 @@ class GetSeasonFlowersService {
     required String accessToken,
     required String season,
   }) async {
-    // 계절별 캐시 키
     final cacheKey = 'season_flowers_$season';
     
     // 캐시 확인
     final cached = _cache.get<List<Flower>>(cacheKey);
     if (cached != null) {
-      return GetSeasonFlowersResponse(success: true, flowers: cached);
+      return GetSeasonFlowersResponse(
+        success: true,
+        flowers: cached,
+      );
     }
+
     try {
       final uri = Uri.parse('$baseUrl/flowers/season')
           .replace(queryParameters: {'season': season});
@@ -38,7 +41,7 @@ class GetSeasonFlowersService {
             .map((json) => Flower.fromJson(json as Map<String, dynamic>))
             .toList();
 
-        // 1시간 캐싱
+        // 1시간 캐시 저장
         _cache.set(cacheKey, flowers, const Duration(hours: 1));
 
         return GetSeasonFlowersResponse(

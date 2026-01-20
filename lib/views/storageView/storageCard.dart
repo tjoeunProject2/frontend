@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../viewmodels/storage_vm.dart';
+import '../../models/flower.dart';
 
 class FlowerStorageCard extends StatelessWidget {
-  final FlowerItem flower;
+  final Flower flower;
   final Color primaryColor;
   final VoidCallback onFavoriteToggle;
 
@@ -36,7 +36,7 @@ class FlowerStorageCard extends StatelessWidget {
                 // 배경 이미지 또는 색상 영역
                 Container(
                   decoration: BoxDecoration(
-                    color: flower.color ?? const Color(0xFFF3F4F6),
+                    color: const Color(0xFFF3F4F6),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   child: flower.imageUrl != null
@@ -56,8 +56,8 @@ class FlowerStorageCard extends StatelessWidget {
                     onPressed: onFavoriteToggle,
                     icon: Icon(
                       // 상태에 따라 아이콘 모양 변경
-                      flower.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: flower.isFavorite ? const Color(0xFFFF4D4D) : Colors.white,
+                      flower.isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: flower.isLiked ? const Color(0xFFFF4D4D) : Colors.white,
                       size: 24,
                   ),
                   constraints: const BoxConstraints(),
@@ -76,7 +76,7 @@ class FlowerStorageCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  flower.description,
+                  flower.occasion ?? '',
                   style: TextStyle(
                     color: primaryColor,
                     fontSize: 11,
@@ -85,12 +85,12 @@ class FlowerStorageCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  flower.title,
+                  flower.koreanName,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  flower.date,
+                  flower.season,
                   style: const TextStyle(color: Colors.grey, fontSize: 11),
                 ),
               ],
