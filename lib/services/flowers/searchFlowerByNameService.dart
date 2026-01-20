@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../models/flower.dart';
 
@@ -39,9 +40,10 @@ class SearchFlowerByNameService {
         );
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Search flower by name error: $e');
       return SearchFlowerByNameResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }

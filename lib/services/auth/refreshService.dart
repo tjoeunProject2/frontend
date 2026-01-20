@@ -31,9 +31,11 @@ class RefreshService {
         );
       }
     } catch (e) {
+      // 보안: 에러 상세 정보는 로그에만 출력
+      print('Refresh token error: $e');
       return RefreshTokenResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }

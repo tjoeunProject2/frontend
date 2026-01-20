@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../models/favorite.dart';
 
@@ -33,9 +34,10 @@ class GetFavoritesService {
         );
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Get favorites error: $e');
       return GetFavoritesResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }

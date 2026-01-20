@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth/logoutService.dart';
@@ -26,7 +27,7 @@ class MyPageViewModel extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      print('로그아웃 에러: $e');
+      if (kDebugMode) debugPrint('로그아웃 에러: $e');
       return false;
     }
   }

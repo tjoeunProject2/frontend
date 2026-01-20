@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class SemanticSearchService {
@@ -36,9 +37,10 @@ class SemanticSearchService {
         );
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Semantic search error: $e');
       return SemanticSearchResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }
