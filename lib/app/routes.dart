@@ -10,6 +10,9 @@ import "../views/startView.dart";
 import '../views/mapView/mapView.dart';
 import '../views/mypageView/likedShopsView.dart';
 import '../views/mypageView/likedFlowersView.dart';
+import '../views/recommendationView.dart';
+import '../views/flowerDetailView.dart';
+
 
 class AppRoutes {
 
@@ -25,6 +28,9 @@ class AppRoutes {
   static const String map = '/map';
   static const String likedShops = '/liked-shops';
   static const String likedFlowers = '/liked-flowers';
+  static const String recommendation = '/recommendation';
+  static const String flowerDetail = '/flower-detail';
+
 
   static final Map<String, WidgetBuilder> routes = {
     root: (_) => const StartView(),
@@ -38,5 +44,12 @@ class AppRoutes {
     map: (_) => const MapView(),
     likedShops: (_) => const LikedShopsView(),
     likedFlowers: (_) => const LikedFlowersView(),
+
+    // 데이터를 생성자로 직접 넘기기 어려운 경우 ModalRoute.of(context).settings.arguments를 사용함
+    recommendation: (context) {
+      final String keyword = ModalRoute.of(context)?.settings.arguments as String? ?? '추천';
+      return RecommendationView(keyword: keyword);
+    },
+    flowerDetail: (_) => const FlowerDetailView(),
   };
 }
