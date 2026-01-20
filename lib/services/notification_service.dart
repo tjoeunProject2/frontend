@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -66,7 +67,7 @@ class NotificationService {
   /// 알림 탭 시 처리
   void _onNotificationTap(NotificationResponse response) {
     // TODO: 알림 탭 시 특정 화면으로 이동 (예: 지도 화면)
-    print('알림 탭: ${response.payload}');
+    if (kDebugMode) debugPrint('알림 탭: ${response.payload}');
   }
 
   /// 매일 오후 6시 알림 예약
@@ -119,7 +120,7 @@ class NotificationService {
       matchDateTimeComponents: DateTimeComponents.time, // 매일 반복
     );
 
-    print('매일 오후 6시 알림이 예약되었습니다: $scheduledDate');
+    if (kDebugMode) debugPrint('매일 오후 6시 알림이 예약되었습니다: $scheduledDate');
   }
 
   /// 즉시 테스트 알림 보내기
@@ -154,7 +155,7 @@ class NotificationService {
   /// 알림 취소
   Future<void> cancelDailyReminder() async {
     await _notifications.cancel(0);
-    print('매일 알림이 취소되었습니다.');
+    if (kDebugMode) debugPrint('매일 알림이 취소되었습니다.');
   }
 
   /// 모든 알림 취소

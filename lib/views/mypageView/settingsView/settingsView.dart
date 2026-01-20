@@ -50,7 +50,7 @@ class SettingsView extends ConsumerWidget {
                 vm.togglePushNotification(value);
                 // 푸시 알림과 함께 퇴근길 꽃집, 오늘의 꽃 알림도 제어
                 await notificationSettings.toggleDailyReminder(value);
-                vm.toggleFlowerRecommendation(value);
+                vm.setFlowerRecommendation(value);
               },
               activeColor: purpleTheme,
             ),
@@ -59,7 +59,7 @@ class SettingsView extends ConsumerWidget {
               title: '꽃집 소식',
               subtitle: '가고 싶은 꽃집의 새로운 소식을 받습니다',
               value: vm.shopNewsEnabled,
-              onChanged: (value) => vm.toggleShopNews(value),
+              onChanged: (value) => vm.setShopNews(value),
               activeColor: purpleTheme,
             ),
 

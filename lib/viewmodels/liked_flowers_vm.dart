@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/flower.dart';
@@ -19,11 +20,11 @@ class LikedFlowersViewModel extends ChangeNotifier {
     if (index >= 0) {
       // 이미 좋아요한 꽃이면 제거
       _likedFlowers.removeAt(index);
-      print('좋아요 취소: ${flower.koreanName}');
+      if (kDebugMode) debugPrint('좋아요 취소: ${flower.koreanName}');
     } else {
       // 좋아요 추가
       _likedFlowers.add(flower.copyWith(isLiked: true));
-      print('좋아요 추가: ${flower.koreanName}');
+      if (kDebugMode) debugPrint('좋아요 추가: ${flower.koreanName}');
     }
     
     notifyListeners();
@@ -39,7 +40,7 @@ class LikedFlowersViewModel extends ChangeNotifier {
   void removeLike(String flowerId) {
     _likedFlowers.removeWhere((flower) => flower.id == flowerId);
     notifyListeners();
-    print('좋아요 제거: $flowerId');
+    if (kDebugMode) debugPrint('좋아요 제거: $flowerId');
     // TODO: API 호출하여 서버에서 제거
   }
 

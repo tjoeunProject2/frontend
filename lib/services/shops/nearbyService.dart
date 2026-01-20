@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../models/flowerShop.dart';
 
@@ -45,9 +46,10 @@ class NearbyService {
         );
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Nearby shops error: $e');
       return NearbyShopsResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }

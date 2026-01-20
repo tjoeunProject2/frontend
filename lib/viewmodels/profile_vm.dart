@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
@@ -36,8 +37,10 @@ class ProfileViewModel extends ChangeNotifier {
     userBio = bio;
     notifyListeners();
     // TODO: API 호출하여 서버에 저장
-    print("프로필 업데이트: $name, $bio");
-    print("업데이트된 User 모델: $_user");
+    if (kDebugMode) {
+      debugPrint("프로필 업데이트: $name, $bio");
+      debugPrint("업데이트된 User 모델: $_user");
+    }
   }
 
   // 프로필 이미지 업데이트
@@ -45,12 +48,12 @@ class ProfileViewModel extends ChangeNotifier {
     profileImageUrl = imagePath;
     notifyListeners();
     // TODO: API 호출하여 서버에 저장
-    print("프로필 이미지 업데이트: $imagePath");
+    if (kDebugMode) debugPrint("프로필 이미지 업데이트: $imagePath");
   }
 
   // 비밀번호 변경
   void changePassword(String currentPassword, String newPassword) {
     // TODO: API 호출하여 비밀번호 변경
-    print("비밀번호 변경 요청");
+    if (kDebugMode) debugPrint("비밀번호 변경 요청");
   }
 }

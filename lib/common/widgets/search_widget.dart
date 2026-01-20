@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
-class SearchWidget extends StatelessWidget {
+class SearchWidget extends StatefulWidget {
   final String hintText;
   final VoidCallback? onTap;
   final TextEditingController? controller;
-  // 검색 버튼이나 엔터를 눌렀을 때 실행될 콜백 추가
   final Function(String)? onSearch;
+  final Duration debounceDuration;
 
   const SearchWidget({
     super.key,
@@ -13,7 +14,41 @@ class SearchWidget extends StatelessWidget {
     this.onTap,
     this.controller,
     this.onSearch,
+    this.debounceDuration = const Duration(milliseconds: 500),
   });
+
+  @override
+  State<SearchWidget> createState() => _SearchWidgetState();
+}
+
+class _SearchWidgetState extends State<SearchWidget> {
+  Timer? _debounce;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+    _controller.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(widget.debounceDuration, () {
+      if (_controller.text.isNotEmpty && widget.onSearch != null) {
+        widget.onSearch!(_controller.text);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +79,9 @@ class SearchWidget extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
-              controller: controller,
+              controller: _controller,
               decoration: InputDecoration(
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: TextStyle(
                   color: const Color(0xFF9E9E9E),
                   fontSize: 14,
@@ -59,25 +94,24 @@ class SearchWidget extends StatelessWidget {
                 fontSize: 14,
                 color: Color(0xFF212121),
               ),
-              onTap: onTap,
-              // 키보드 엔터키를 '검색' 모양으로 변경
+              onTap: widget.onTap,
               textInputAction: TextInputAction.search,
-              // 엔터키 눌렀을 때 동작
               onSubmitted: (value) {
-                if (onSearch != null) onSearch!(value);
+                _debounce?.cancel();
+                if (widget.onSearch != null) widget.onSearch!(value);
               },
             ),
           ),
           const SizedBox(width: 8),
-          // 버튼에 클릭 피드백(터치 효과) 추가
           Material(
             color: const Color(0xFF7C4DFF),
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
-                if (onSearch != null && controller != null) {
-                  onSearch!(controller!.text);
+                _debounce?.cancel();
+                if (widget.onSearch != null) {
+                  widget.onSearch!(_controller.text);
                 }
               },
           child: Container(

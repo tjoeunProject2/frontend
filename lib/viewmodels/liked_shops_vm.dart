@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/flowerShop.dart';
@@ -17,13 +18,13 @@ class LikedShopsViewModel extends ChangeNotifier {
     final index = _likedShops.indexWhere((s) => s.id == shop.id);
     
     if (index >= 0) {
-      // 이미 좋아요한 가게면 제거
+      // 이미 좋아요한 꽃집이면 제거
       _likedShops.removeAt(index);
-      print('좋아요 취소: ${shop.name}');
+      if (kDebugMode) debugPrint('좋아요 취소: ${shop.name}');
     } else {
       // 좋아요 추가
       _likedShops.add(shop.copyWith(isLiked: true));
-      print('좋아요 추가: ${shop.name}');
+      if (kDebugMode) debugPrint('좋아요 추가: ${shop.name}');
     }
     
     notifyListeners();
@@ -39,7 +40,7 @@ class LikedShopsViewModel extends ChangeNotifier {
   void removeLike(String shopId) {
     _likedShops.removeWhere((shop) => shop.id == shopId);
     notifyListeners();
-    print('좋아요 제거: $shopId');
+    if (kDebugMode) debugPrint('좋아요 제거: $shopId');
     // TODO: API 호출하여 서버에서 제거
   }
 

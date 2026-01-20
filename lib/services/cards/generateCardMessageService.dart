@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class GenerateCardMessageService {
@@ -38,9 +39,10 @@ class GenerateCardMessageService {
         );
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Generate card message error: $e');
       return GenerateCardMessageResponse(
         success: false,
-        message: '네트워크 오류가 발생했습니다: $e',
+        message: '네트워크 오류가 발생했습니다.',
       );
     }
   }
