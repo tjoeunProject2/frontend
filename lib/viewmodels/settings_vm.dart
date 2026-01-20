@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth/logoutService.dart';
+import '../services/cache/cache_service.dart';
 import '../views/mypageView/termsOfServiceView.dart';
 import '../views/mypageView/privacyPolicyView.dart';
 import '../views/mypageView/reportBugView.dart';
@@ -94,5 +96,46 @@ class SettingsViewModel extends ChangeNotifier {
   void deleteAccount() {
     print('회원 탈퇴');
     // TODO: 계정 삭제 API 호출
+  }
+
+  // 데이터 관리
+  // 캐시 데이터 삭제
+  Future<void> clearCache() async {
+    try {
+      final cache = CacheService();
+      cache.clear();
+      if (kDebugMode) debugPrint('캐시 데이터 삭제 완료');
+    } catch (e) {
+      if (kDebugMode) debugPrint('캐시 삭제 오류: $e');
+    }
+  }
+
+  // 좋아요한 꽃 목록 삭제
+  Future<void> clearLikedFlowers() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('liked_flowers');
+      if (kDebugMode) debugPrint('좋아요 꽃 목록 삭제 완료');
+    } catch (e) {
+      if (kDebugMode) debugPrint('좋아요 꽃 삭제 오류: $e');
+    }
+  }
+
+  // 좋아요한 꽃집 목록 삭제
+  Future<void> clearLikedShops() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('liked_shops');
+      if (kDebugMode) debugPrint('좋아요 꽃집 목록 삭제 완료');
+    } catch (e) {
+      if (kDebugMode) debugPrint('좋아요 꽃집 삭제 오류: $e');
+    }
+  }
+
+  // 모든 로컬 데이터 삭제 (보관함 초기화)
+  Future<void> clearAllLocalData() async {
+    await clearLikedFlowers();
+    await clearLikedShops();
+    if (kDebugMode) debugPrint('보관함 초기화 완료');
   }
 }

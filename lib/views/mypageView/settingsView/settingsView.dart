@@ -103,6 +103,24 @@ class SettingsView extends ConsumerWidget {
 
             const SizedBox(height: 32),
 
+            // 데이터 관리
+            const SettingSectionTitle('데이터 관리'),
+            const SizedBox(height: 12),
+            SettingMenuItem(
+              icon: Icons.cleaning_services_outlined,
+              title: '캐시 데이터 삭제',
+              value: '임시 저장된 꽃 정보를 삭제합니다',
+              onTap: () => SettingsDialogs.showClearCacheDialog(context, vm),
+            ),
+            SettingMenuItem(
+              icon: Icons.favorite_outline,
+              title: '보관함 초기화',
+              value: '좋아요한 꽃과 꽃집을 모두 삭제합니다',
+              onTap: () => SettingsDialogs.showClearStorageDialog(context, vm),
+            ),
+
+            const SizedBox(height: 32),
+
             // 계정
             const SettingSectionTitle('계정'),
             const SizedBox(height: 12),

@@ -1,14 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/flower.dart';
+import '../cache/cache_service.dart';
 
 class GetFlowerDetailService {
   static const String baseUrl = 'http://localhost:8080/api';
+  final _cache = CacheService();
 
   Future<GetFlowerDetailResponse> getFlowerDetail({
     required String accessToken,
     required int flowerId,
   }) async {
+    final cacheKey = 'flower_detail_$flowerId';
+    
+    // 캐시 확인
+    final cached = _cache.get<Flower>(cacheKey);
+    if (cached != null) {
+      return GetFlowerDetailResponse(
+        success: true,
+        flower: cached,
+      );
+    }
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/flowers/$flowerId'),
@@ -20,9 +33,14 @@ class GetFlowerDetailService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        final flower = Flower.fromJson(data);
+        
+        // 30분 캐시 저장
+        _cache.set(cacheKey, flower, const Duration(minutes: 30));
+        
         return GetFlowerDetailResponse(
           success: true,
-          flower: Flower.fromJson(data),
+          flower: flower,
         );
       } else {
         final error = jsonDecode(response.body);

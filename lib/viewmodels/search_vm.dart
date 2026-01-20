@@ -1,0 +1,234 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/flower.dart';
+import '../services/flowers/searchFlowerByNameService.dart';
+import '../services/flowers/searchFlowerByKeywordService.dart';
+import '../services/search/semanticSearchService.dart';
+import '../services/search/getRecentSearchService.dart';
+import '../services/search/deleteSearchService.dart';
+import '../services/search/deleteAllSearchService.dart';
+import '../services/storage/token_storage.dart';
+
+final searchViewModelProvider = ChangeNotifierProvider<SearchViewModel>((ref) {
+  return SearchViewModel();
+});
+
+class SearchViewModel extends ChangeNotifier {
+  final _searchByNameService = SearchFlowerByNameService();
+  final _searchByKeywordService = SearchFlowerByKeywordService();
+  final _semanticSearchService = SemanticSearchService();
+  final _recentSearchService = GetRecentSearchService();
+  final _deleteSearchService = DeleteSearchService();
+  final _deleteAllSearchService = DeleteAllSearchService();
+  final _tokenStorage = TokenStorage();
+
+  final TextEditingController searchController = TextEditingController();
+
+  List<Flower> _searchResults = [];
+  List<String> _recentSearches = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+  String _searchMode = 'name'; // 'name', 'keyword', 'semantic'
+
+  List<Flower> get searchResults => _searchResults;
+  List<String> get recentSearches => _recentSearches;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String get searchMode => _searchMode;
+
+  // 최근 검색어 불러오기
+  Future<void> loadRecentSearches() async {
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) return;
+
+      final response = await _recentSearchService.getRecentSearch(accessToken);
+      
+      if (response.success && response.recentSearches != null) {
+        _recentSearches = response.recentSearches!;
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('최근 검색어 로드 오류: $e');
+    }
+  }
+
+  // 이름으로 검색
+  Future<void> searchByName(String query) async {
+    if (query.trim().isEmpty) return;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) {
+        _errorMessage = '로그인이 필요합니다.';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final response = await _searchByNameService.searchFlowerByName(
+        accessToken: accessToken,
+        name: query,
+      );
+      
+      if (response.success && response.flowers != null) {
+        _searchResults = response.flowers!;
+      } else {
+        _errorMessage = response.message ?? '검색 결과가 없습니다.';
+        _searchResults = [];
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('검색 오류: $e');
+      _errorMessage = '네트워크 오류가 발생했습니다.';
+      _searchResults = [];
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // 키워드로 검색
+  Future<void> searchByKeyword(String query) async {
+    if (query.trim().isEmpty) return;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) {
+        _errorMessage = '로그인이 필요합니다.';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final response = await _searchByKeywordService.searchFlowerByKeyword(
+        accessToken: accessToken,
+        keyword: query,
+      );
+      
+      if (response.success && response.flowers != null) {
+        _searchResults = response.flowers!;
+      } else {
+        _errorMessage = response.message ?? '검색 결과가 없습니다.';
+        _searchResults = [];
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('검색 오류: $e');
+      _errorMessage = '네트워크 오류가 발생했습니다.';
+      _searchResults = [];
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // 시맨틱 검색
+  Future<void> semanticSearch(String query) async {
+    if (query.trim().isEmpty) return;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) {
+        _errorMessage = '로그인이 필요합니다.';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      // 시맨틱 검색은 임베딩 벡터를 반환하므로
+      // 실제 구현 시 벡터 기반 검색 로직이 필요합니다.
+      // 임시로 키워드 검색 사용
+      await searchByKeyword(query);
+      
+    } catch (e) {
+      if (kDebugMode) debugPrint('검색 오류: $e');
+      _errorMessage = '네트워크 오류가 발생했습니다.';
+      _searchResults = [];
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // 검색 실행 (모드에 따라)
+  Future<void> search(String query) async {
+    switch (_searchMode) {
+      case 'keyword':
+        await searchByKeyword(query);
+        break;
+      case 'semantic':
+        await semanticSearch(query);
+        break;
+      default:
+        await searchByName(query);
+    }
+  }
+
+  // 검색 모드 변경
+  void setSearchMode(String mode) {
+    _searchMode = mode;
+    notifyListeners();
+  }
+
+  // 검색어 삭제
+  Future<void> deleteSearch(String search) async {
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) return;
+
+      final response = await _deleteSearchService.deleteSearch(
+        accessToken: accessToken,
+        query: search,
+      );
+
+      if (response.success) {
+        _recentSearches.remove(search);
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('검색어 삭제 오류: $e');
+    }
+  }
+
+  // 검색 결과 초기화
+  void clearResults() {
+    _searchResults = [];
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // 모든 검색 기록 삭제
+  Future<void> deleteAllSearches() async {
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      if (accessToken == null) return;
+
+      final response = await _deleteAllSearchService.deleteAllSearch(accessToken);
+
+      if (response.success) {
+        _recentSearches.clear();
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('전체 검색 기록 삭제 오류: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+}

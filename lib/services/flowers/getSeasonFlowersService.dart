@@ -1,14 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/flower.dart';
+import '../cache/cache_service.dart';
 
 class GetSeasonFlowersService {
   static const String baseUrl = 'http://localhost:8080/api';
+  final _cache = CacheService();
 
   Future<GetSeasonFlowersResponse> getSeasonFlowers({
     required String accessToken,
     required String season,
   }) async {
+    final cacheKey = 'season_flowers_$season';
+    
+    // 캐시 확인
+    final cached = _cache.get<List<Flower>>(cacheKey);
+    if (cached != null) {
+      return GetSeasonFlowersResponse(
+        success: true,
+        flowers: cached,
+      );
+    }
+
     try {
       final uri = Uri.parse('$baseUrl/flowers/season')
           .replace(queryParameters: {'season': season});
@@ -26,6 +39,9 @@ class GetSeasonFlowersService {
         final flowers = data
             .map((json) => Flower.fromJson(json as Map<String, dynamic>))
             .toList();
+
+        // 1시간 캐시 저장
+        _cache.set(cacheKey, flowers, const Duration(hours: 1));
 
         return GetSeasonFlowersResponse(
           success: true,

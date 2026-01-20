@@ -63,7 +63,8 @@ class _StorageViewState extends ConsumerState<StorageView> {
                     flower: flower,
                     primaryColor: purpleTheme,
                     onFavoriteToggle: () {
-                      viewModel.toggleFavorite(viewModel.flowers.indexOf(flower));
+                      // 좋아요는 liked_flowers_vm에서 처리
+                      // TODO: liked_flowers_vm 연결 필요
                     },
                   );
                 },
