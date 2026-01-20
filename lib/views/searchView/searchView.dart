@@ -6,6 +6,7 @@ import 'categoryCard.dart';
 import 'searchBackground.dart';
 import 'searchChips.dart';
 import 'searchHeader.dart';
+import '../recommendationView.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -61,7 +62,16 @@ class _SearchViewState extends State<SearchView> {
                   // 검색바 : 검색시 _addSearch 실행
                   SearchWidget(
                     controller: TextEditingController(),
-                    onSearch: (value) => _addSearch(value),
+                    onSearch: (value) {
+                      _addSearch(value); // 검색어 저장
+                      // 결과 화면으로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RecommendationView(keyword: value),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 40),
