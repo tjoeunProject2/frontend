@@ -164,16 +164,29 @@ class SearchViewModel extends ChangeNotifier {
 
   // 검색 실행 (모드에 따라)
   Future<void> search(String query) async {
-    switch (_searchMode) {
-      case 'keyword':
-        await searchByKeyword(query);
-        break;
-      case 'semantic':
-        await semanticSearch(query);
-        break;
-      default:
-        await searchByName(query);
+    if (query.trim().isEmpty) return;
+
+    // UI 즉시 반영 (중복 제거 후 맨 위로 추가)
+    _recentSearches.remove(query);
+    _recentSearches.insert(0, query);
+    notifyListeners();
+
+    try {
+      // 검색 실행
+      switch (_searchMode) {
+        case 'keyword':
+          await searchByKeyword(query);
+          break;
+        case 'semantic':
+          await semanticSearch(query);
+          break;
+        default:
+          await searchByName(query);
+      }
+    } catch(e) {
+      if (kDebugMode) debugPrint('검색 중 오류 발생 : $e');
     }
+
   }
 
   // 검색 모드 변경
@@ -182,23 +195,30 @@ class SearchViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 검색어 삭제
+  // 검색어 삭제(로컬 즉시 제거 후 서버 동기화)
   Future<void> deleteSearch(String search) async {
+    // 로컬 리스트에서 먼저 제거
+    _recentSearches.remove(search);
+    notifyListeners();
+
     try {
       final accessToken = await _tokenStorage.getAccessToken();
       if (accessToken == null) return;
 
+      // 서버에서 실제 삭제 요청
       final response = await _deleteSearchService.deleteSearch(
         accessToken: accessToken,
         query: search,
       );
 
+      // 서버 응답이 실패한 경우에만 다시 로드하여 UI 복구
       if (response.success) {
-        _recentSearches.remove(search);
-        notifyListeners();
+        debugPrint('서버 삭제 실패 : ${response.message}');
+        await loadRecentSearches();
       }
     } catch (e) {
       if (kDebugMode) debugPrint('검색어 삭제 오류: $e');
+      await loadRecentSearches();
     }
   }
 
@@ -209,20 +229,27 @@ class SearchViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 모든 검색 기록 삭제
+  // 모든 검색 기록 삭제(로컬 즉시 초기화 후 서버 동기화)
   Future<void> deleteAllSearches() async {
+    // 로컬 리스트 즉시 비우기
+    _recentSearches.clear();
+    notifyListeners();
+
     try {
       final accessToken = await _tokenStorage.getAccessToken();
       if (accessToken == null) return;
 
+      // 서버에 전체 삭제 요청
       final response = await _deleteAllSearchService.deleteAllSearch(accessToken);
 
-      if (response.success) {
-        _recentSearches.clear();
-        notifyListeners();
+      // 실패 시 복구
+      if (!response.success) {
+        debugPrint('서버 전체 삭제 실패: ${response.message}');
+        await loadRecentSearches();
       }
     } catch (e) {
       if (kDebugMode) debugPrint('전체 검색 기록 삭제 오류: $e');
+      await loadRecentSearches();
     }
   }
 

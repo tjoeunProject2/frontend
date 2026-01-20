@@ -10,8 +10,8 @@ import "../views/startView.dart";
 import '../views/mapView/mapView.dart';
 import '../views/mypageView/likedShopsView.dart';
 import '../views/mypageView/likedFlowersView.dart';
-import '../views/recommendationView.dart';
-import '../views/flowerDetailView.dart';
+import '../views/recommendationView/recommendationView.dart';
+import '../views/flowerDetailView/flowerDetailView.dart';
 
 
 class AppRoutes {
