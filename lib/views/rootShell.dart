@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../common/widgets/navigate.dart';
 import '../viewmodels/navigation_vm.dart';
+import '../viewmodels/storage_vm.dart';
 import 'homeView/homeView.dart';
 import 'mapView/mapView.dart';
 import 'searchView/searchView.dart';
@@ -43,6 +44,13 @@ class _RootShellState extends ConsumerState<RootShell> {
             currentIndex: navVm.currentIndex,
             onTap: (i) {
               ref.read(navigationViewModelProvider).setIndex(i);
+              
+              // 보관함 탭(index 3)을 선택하면 데이터 로드
+              if (i == 3) {
+                final storageVm = ref.read(storageViewModelProvider);
+                storageVm.selectedTabIndex = 0;
+                storageVm.loadFavorites();
+              }
             },
           ),
           Positioned(
