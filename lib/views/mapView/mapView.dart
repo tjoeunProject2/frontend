@@ -7,6 +7,7 @@ import 'mapErrorMessage.dart';
 import 'myLocationButton.dart';
 import 'shopBottomSheet.dart';
 import 'expandedShopSheet.dart';
+import 'mapScaleBar.dart';
 
 class MapView extends ConsumerStatefulWidget {
   const MapView({super.key});
@@ -18,6 +19,7 @@ class MapView extends ConsumerStatefulWidget {
 class _MapViewState extends ConsumerState<MapView> {
   GoogleMapController? _mapController;
   Set<Marker> _markers = {};
+  double _currentZoom = 15.0;
 
   @override
   void initState() {
@@ -30,6 +32,22 @@ class _MapViewState extends ConsumerState<MapView> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+  }
+
+  // 화면 크기에 따른 반지름 계산 (km)
+  double _calculateRadius(double latDiff, double lngDiff) {
+    // 위도 1도 ≈ 111km, 경도는 위도에 따라 다르지만 평균 약 88km (한국 기준)
+    const kmPerLatDegree = 111.0;
+    const kmPerLngDegree = 88.0;
+    
+    final latDistance = latDiff * kmPerLatDegree;
+    final lngDistance = lngDiff * kmPerLngDegree;
+    
+    // 대각선 거리의 절반을 반지름으로 사용
+    final diagonal = (latDistance * latDistance + lngDistance * lngDistance);
+    final radius = (diagonal / 2).clamp(1.0, 50.0); // 최소 1km, 최대 50km
+    
+    return radius;
   }
 
   void _updateMarkers() {
@@ -103,6 +121,26 @@ class _MapViewState extends ConsumerState<MapView> {
                   mapToolbarEnabled: false,
                   buildingsEnabled: false,
                   trafficEnabled: false,
+                  onCameraIdle: () async {
+                    // 카메라 이동이 완료되면 해당 위치의 꽃집 검색
+                    if (_mapController != null) {
+                      final bounds = await _mapController!.getVisibleRegion();
+                      final lat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
+                      final lng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
+                      
+                      // 화면에 보이는 영역의 반지름 계산 (km 단위)
+                      final latDiff = bounds.northeast.latitude - bounds.southwest.latitude;
+                      final lngDiff = bounds.northeast.longitude - bounds.southwest.longitude;
+                      final radius = _calculateRadius(latDiff, lngDiff);
+                      
+                      await ref.read(mapViewModelProvider).searchShopsAtCameraPosition(lat, lng, radius: radius);
+                    }
+                  },
+                  onCameraMove: (position) {
+                    setState(() {
+                      _currentZoom = position.zoom;
+                    });
+                  },
                 ),
 
           // 상단 검색바
@@ -143,6 +181,16 @@ class _MapViewState extends ConsumerState<MapView> {
             bottom: vm.selectedShop != null ? 280 : 100,
             right: 16,
             child: MyLocationButton(onPressed: _moveToCurrentLocation),
+          ),
+
+          // 축척(스케일) 표시
+          Positioned(
+            bottom: vm.selectedShop != null ? 310 : 130,
+            left: 16,
+            child: MapScaleBar(
+              zoomLevel: _currentZoom,
+              screenWidth: MediaQuery.of(context).size.width,
+            ),
           ),
         ],
       ),

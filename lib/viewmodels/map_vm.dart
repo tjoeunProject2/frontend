@@ -18,6 +18,7 @@ class MapViewModel extends ChangeNotifier {
   FlowerShop? selectedShop;
   bool isLoading = false;
   String? errorMessage;
+  String? currentKeyword; // 현재 검색 키워드
 
   // 현재 위치 가져오기 및 주변 꽃집 검색
   Future<void> loadCurrentLocation() async {
@@ -52,54 +53,21 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // 주변 꽃집 검색
-  Future<void> loadNearbyShops(double lat, double lng) async {
+  Future<void> loadNearbyShops(double lat, double lng, {double radius = 5.0, String? keyword}) async {
     try {
-      // TODO: 개발 완료 후 실제 API 호출로 변경
-      // final response = await _nearbyService.getNearbyShops(
-      //   latitude: lat,
-      //   longitude: lng,
-      //   radius: 5000, // 5km
-      // );
-      // if (response.success && response.shops != null) {
-      //   shops = response.shops!;
-      //   _createMarkers();
-      // } else {
-      //   errorMessage = response.message;
-      // }
+      final response = await _nearbyService.getNearbyShops(
+        latitude: lat,
+        longitude: lng,
+        radius: radius,
+        keyword: keyword,
+      );
       
-      // 임시 하드코딩: 강남역 주변 꽃집 샘플 데이터
-      shops = [
-        FlowerShop(
-          id: 'shop_1',
-          name: '강남 플라워샵',
-          address: '서울 강남구 강남대로 396',
-          lat: 37.498500,
-          lng: 127.028000,
-          distance: 100,
-          phone: '02-1234-5678',
-          placeUrl: 'http://place.map.kakao.com/example1',
-        ),
-        FlowerShop(
-          id: 'shop_2',
-          name: '신논현 꽃집',
-          address: '서울 강남구 강남대로 지하 396',
-          lat: 37.504500,
-          lng: 127.025000,
-          distance: 720,
-          phone: '02-2345-6789',
-          placeUrl: 'http://place.map.kakao.com/example2',
-        ),
-        FlowerShop(
-          id: 'shop_3',
-          name: '논현동 플라워',
-          address: '서울 강남구 논현로 507',
-          lat: 37.510000,
-          lng: 127.022000,
-          distance: 1350,
-          phone: '02-3456-7890',
-          placeUrl: 'http://place.map.kakao.com/example3',
-        ),
-      ];
+      if (response.success && response.shops != null) {
+        shops = response.shops!;
+        currentKeyword = keyword;
+      } else {
+        errorMessage = response.message;
+      }
       
       notifyListeners();
     } catch (e) {
@@ -121,9 +89,61 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // 특정 위치로 검색 (검색 기능에서 사용)
-  Future<void> searchLocation(double lat, double lng) async {
+  Future<void> searchLocation(double lat, double lng, {double radius = 5.0}) async {
     currentLocation = LatLng(lat, lng);
-    await loadNearbyShops(lat, lng);
+    await loadNearbyShops(lat, lng, radius: radius);
+  }
+
+  // 키워드로 꽃집 검색
+  Future<void> searchShopsByKeyword(String keyword) async {
+    if (currentLocation == null) return;
+    
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      await loadNearbyShops(
+        currentLocation!.latitude,
+        currentLocation!.longitude,
+        radius: 10.0, // 검색 시 반경 확대
+        keyword: keyword,
+      );
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      errorMessage = '꽃집 검색에 실패했습니다: $e';
+      notifyListeners();
+    }
+  }
+
+  // 검색 초기화
+  Future<void> clearSearch() async {
+    if (currentLocation == null) return;
+    
+    currentKeyword = null;
+    await loadNearbyShops(
+      currentLocation!.latitude,
+      currentLocation!.longitude,
+    );
+  }
+
+  // 카메라 위치로 꽃집 검색 (지도 이동 시 사용)
+  Future<void> searchShopsAtCameraPosition(double lat, double lng, {double radius = 5.0}) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      await loadNearbyShops(lat, lng, radius: radius);
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      errorMessage = '주변 꽃집 검색에 실패했습니다: $e';
+      notifyListeners();
+    }
   }
 
   // 특정 꽃집으로 이동 (마이페이지에서 위치보기)

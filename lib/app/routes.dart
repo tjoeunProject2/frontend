@@ -53,6 +53,9 @@ class AppRoutes {
       final String keyword = ModalRoute.of(context)?.settings.arguments as String? ?? '추천';
       return RecommendationView(keyword: keyword);
     },
-    flowerDetail: (_) => const FlowerDetailView(),
+    flowerDetail: (context) {
+      final String flowerId = ModalRoute.of(context)?.settings.arguments as String? ?? '1';
+      return FlowerDetailView(flowerId: flowerId);
+    },
   };
 }

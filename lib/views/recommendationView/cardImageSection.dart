@@ -15,7 +15,7 @@ class CardImageSection extends StatelessWidget {
         Navigator.pushNamed(
           context,
           AppRoutes.flowerDetail, // AppRoutes에 등록된 상세 페이지 경로
-          arguments: flower,      // 선택된 꽃의 정보를 인자로 전달
+          arguments: flower.id.toString(),      // flowerId를 문자열로 전달
         );
       },
       child: Stack(
