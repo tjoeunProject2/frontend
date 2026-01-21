@@ -16,30 +16,22 @@ class _StorageViewState extends ConsumerState<StorageView> {
   @override
   void initState() {
     super.initState();
-    // 초기 데이터 로드 및 탭 초기화
+    print('[StorageView] initState 호출됨');
+    // 초기 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('[StorageView] addPostFrameCallback 실행됨');
       final viewModel = ref.read(storageViewModelProvider);
-      viewModel.setTab(0); // 항상 "저장한 꽃" 탭으로 초기화
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 페이지가 다시 보일 때마다 데이터 새로고침
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final viewModel = ref.read(storageViewModelProvider);
-      if (viewModel.selectedTabIndex == 0) {
-        viewModel.loadFavorites();
-      } else {
-        viewModel.loadViewHistory();
-      }
+      print('[StorageView] selectedTabIndex: ${viewModel.selectedTabIndex}');
+      print('[StorageView] favorites 개수: ${viewModel.favorites.length}');
+      viewModel.selectedTabIndex = 0;
+      viewModel.loadFavorites();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storageViewModelProvider);
+    print('[StorageView] build 호출 - favorites: ${viewModel.favorites.length}, filteredFlowers: ${viewModel.filteredFlowers.length}');
     const purpleTheme = Color(0xFF9E7AFF);
 
     return Scaffold(
@@ -69,9 +61,11 @@ class _StorageViewState extends ConsumerState<StorageView> {
 
             // 3. 그리드 영역
             Expanded(
-              child: viewModel.filteredFlowers.isEmpty
-                ? const Center(child: Text("보관함에 해당하는 꽃이 없습니다."))
-                : GridView.builder(
+              child: viewModel.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : viewModel.filteredFlowers.isEmpty
+                  ? const Center(child: Text("보관함에 해당하는 꽃이 없습니다."))
+                  : GridView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,

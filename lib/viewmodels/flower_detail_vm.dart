@@ -17,6 +17,7 @@ final flowerDetailViewModelProvider = ChangeNotifierProvider.family<FlowerDetail
 
 class FlowerDetailViewModel extends ChangeNotifier {
   static const String _storageKey = 'liked_flowers';
+  static const String _viewHistoryKey = 'view_history_flowers';
   final String flowerId;
   final _flowerDetailService = GetFlowerDetailService();
   final _addViewHistoryService = AddViewHistoryService();
@@ -180,6 +181,20 @@ class FlowerDetailViewModel extends ChangeNotifier {
         // 좋아요 제거
         likedFlowers.removeWhere((f) => f.id == _flower!.id);
         if (kDebugMode) debugPrint('보관함에서 제거: ${_flower!.koreanName}');
+        
+        // "관심있는 꽃"에서도 제거
+        final viewHistoryString = prefs.getString(_viewHistoryKey);
+        if (viewHistoryString != null) {
+          final List<dynamic> viewHistoryList = jsonDecode(viewHistoryString);
+          List<Flower> viewHistory = viewHistoryList.map((json) => Flower.fromJson(json)).toList();
+          viewHistory.removeWhere((f) => f.id == _flower!.id);
+          
+          final updatedViewHistoryString = jsonEncode(
+            viewHistory.map((f) => f.toJson()).toList(),
+          );
+          await prefs.setString(_viewHistoryKey, updatedViewHistoryString);
+          if (kDebugMode) debugPrint('"관심있는 꽃"에서도 제거: ${_flower!.koreanName}');
+        }
       }
       
       // 저장

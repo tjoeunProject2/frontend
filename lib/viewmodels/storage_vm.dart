@@ -239,10 +239,18 @@ class StorageViewModel extends ChangeNotifier {
       
       // SharedPreferences에 저장
       final prefs = await SharedPreferences.getInstance();
+      
+      // favorites 저장
       final updatedJsonString = jsonEncode(
         _favorites.map((f) => f.toJson()).toList(),
       );
       await prefs.setString(_storageKey, updatedJsonString);
+      
+      // viewHistory도 저장
+      final viewHistoryJsonString = jsonEncode(
+        _viewHistory.map((f) => f.toJson()).toList(),
+      );
+      await prefs.setString(_viewHistoryKey, viewHistoryJsonString);
       
       if (kDebugMode) debugPrint('즐겨찾기에서 삭제: ${flower.koreanName}');
       
@@ -318,9 +326,31 @@ class StorageViewModel extends ChangeNotifier {
         );
         await prefs.setString(_viewHistoryKey, viewHistoryJsonString);
       } else {
-        // "관심있는 꽃" 탭(index 1)에서는 viewHistory만 제거
+        // "관심있는 꽃" 탭(index 1)에서는 viewHistory에서 제거
         _viewHistory.removeWhere((f) => f.id == flower.id);
         if (kDebugMode) debugPrint('"관심있는 꽃"에서 제거: ${flower.koreanName}');
+        
+        // favorites에서도 isLiked를 false로 업데이트
+        final favIndex = _favorites.indexWhere((f) => f.id == flower.id);
+        if (favIndex != -1) {
+          _favorites[favIndex] = Flower(
+            id: flower.id,
+            name: flower.name,
+            koreanName: flower.koreanName,
+            season: flower.season,
+            occasion: flower.occasion,
+            tag: flower.tag,
+            imageUrl: flower.imageUrl,
+            description: flower.description,
+            isLiked: false,
+          );
+          
+          // favorites도 SharedPreferences에 저장
+          final favoritesJsonString = jsonEncode(
+            _favorites.map((f) => f.toJson()).toList(),
+          );
+          await prefs.setString(_storageKey, favoritesJsonString);
+        }
         
         // viewHistory를 SharedPreferences에 저장
         final viewHistoryJsonString = jsonEncode(
