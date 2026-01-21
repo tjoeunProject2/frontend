@@ -14,6 +14,30 @@ class StorageView extends ConsumerStatefulWidget {
 
 class _StorageViewState extends ConsumerState<StorageView> {
   @override
+  void initState() {
+    super.initState();
+    // 초기 데이터 로드 및 탭 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = ref.read(storageViewModelProvider);
+      viewModel.setTab(0); // 항상 "저장한 꽃" 탭으로 초기화
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 페이지가 다시 보일 때마다 데이터 새로고침
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = ref.read(storageViewModelProvider);
+      if (viewModel.selectedTabIndex == 0) {
+        viewModel.loadFavorites();
+      } else {
+        viewModel.loadViewHistory();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storageViewModelProvider);
     const purpleTheme = Color(0xFF9E7AFF);
@@ -35,7 +59,7 @@ class _StorageViewState extends ConsumerState<StorageView> {
 
             // 2. 탭 위젯
             StorageFilterTabs(
-              tabs: const ['전체 꽃', '저장한 꽃', '관심있는 꽃'],
+              tabs: const ['저장한 꽃', '관심있는 꽃'],
               selectedIndex: viewModel.selectedTabIndex,
               onTabSelected: (index) => viewModel.setTab(index),
               primaryColor: purpleTheme,
@@ -63,9 +87,18 @@ class _StorageViewState extends ConsumerState<StorageView> {
                     flower: flower,
                     primaryColor: purpleTheme,
                     onFavoriteToggle: () {
-                      // 좋아요는 liked_flowers_vm에서 처리
-                      // TODO: liked_flowers_vm 연결 필요
+                      // "관심있는 꽃" 탭에서만 하트 토글 (제거)
+                      if (viewModel.selectedTabIndex == 1) {
+                        viewModel.toggleLikeStatus(flower);
+                      }
+                      // "저장한 꽃" 탭에서는 하트 토글 (관심있는 꽃으로 추가)
+                      else if (viewModel.selectedTabIndex == 0) {
+                        viewModel.toggleLikeStatus(flower);
+                      }
                     },
+                    onDelete: viewModel.selectedTabIndex == 0
+                        ? () => viewModel.deleteFavorite(flower)
+                        : null,
                   );
                 },
               ),

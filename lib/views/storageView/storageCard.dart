@@ -5,12 +5,14 @@ class FlowerStorageCard extends StatelessWidget {
   final Flower flower;
   final Color primaryColor;
   final VoidCallback onFavoriteToggle;
+  final VoidCallback? onDelete;
 
   const FlowerStorageCard({
     super.key,
     required this.flower,
     required this.primaryColor,
     required this.onFavoriteToggle,
+    this.onDelete,
   });
 
   @override
@@ -48,6 +50,26 @@ class FlowerStorageCard extends StatelessWidget {
                   )
                       : null,
                 ),
+                // X 아이콘 (삭제 버튼)
+                if (onDelete != null)
+                  Positioned(
+                    top: 5,
+                    left: 5,
+                    child: IconButton(
+                      onPressed: onDelete,
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(6),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black.withOpacity(0.5),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ),
                 // 하트 아이콘
                 Positioned(
                   top: 5,
