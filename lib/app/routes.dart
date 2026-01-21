@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/views/user/resetPasswordView.dart';
 import '../views/user/loginView.dart';
 import '../views/user/registerView.dart';
 import '../views/rootShell.dart';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const String likedFlowers = '/liked-flowers';
   static const String recommendation = '/recommendation';
   static const String flowerDetail = '/flower-detail';
+  static const String resetPassword = '/reset-password';
 
 
   static final Map<String, WidgetBuilder> routes = {
@@ -44,6 +46,7 @@ class AppRoutes {
     map: (_) => const MapView(),
     likedShops: (_) => const LikedShopsView(),
     likedFlowers: (_) => const LikedFlowersView(),
+    resetPassword: (context) => const ResetPasswordView(),
 
     // 데이터를 생성자로 직접 넘기기 어려운 경우 ModalRoute.of(context).settings.arguments를 사용함
     recommendation: (context) {
