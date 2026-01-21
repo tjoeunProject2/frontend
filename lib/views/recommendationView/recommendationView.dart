@@ -26,9 +26,9 @@ class _RecommendationViewState extends ConsumerState<RecommendationView> {
     // 스크롤 리스너 등록: 스크롤 할 때마다 현재 페이지 값 업데이트하고 화면을 다시 그림
     _pageController.addListener(() {
       setState(() {
-          _currentPageValue = _pageController.page!;
-        });
+        _currentPageValue = _pageController.page!;
       });
+    });
   }
 
   @override
@@ -41,7 +41,9 @@ class _RecommendationViewState extends ConsumerState<RecommendationView> {
   @override
   Widget build(BuildContext context) {
     // 서버 결과 가져오기
-    final serverResults = ref.watch(searchViewModelProvider).searchResults;
+    final serverResults = ref
+        .watch(searchViewModelProvider)
+        .searchResults;
 
     // 더미 데이터 (Flower 모델 객체로 생성)
     final List<Flower> dummyResults = [
@@ -93,9 +95,9 @@ class _RecommendationViewState extends ConsumerState<RecommendationView> {
           // 현재 인덱스와 스크롤 위치 사이의 거리 절댓값 계산 (0이면 중앙, 커질수록 멀어짐)
           double value = (_currentPageValue - index).abs();
           // 스케일 계산 : 중앙(0)일 때 1.0, 멀어질수록 0.9까지 작아짐
-          double scale = (1- (value * 0.1)).clamp(0.9, 1.0);
+          double scale = (1 - (value * 0.1)).clamp(0.9, 1.0);
           // 투명도 계산 : 중앙(0)일 때 1.0, 멀어질수록 0.5까지 흐려짐
-          double opacity = (1 -(value * 0.5)).clamp(0.5, 1.0);
+          double opacity = (1 - (value * 0.5)).clamp(0.5, 1.0);
 
           return Transform.scale(
             scale: scale,
@@ -114,17 +116,17 @@ class _RecommendationViewState extends ConsumerState<RecommendationView> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF2D3142), size: 20),
+        icon: const Icon(
+            Icons.arrow_back_ios, color: Color(0xFF2D3142), size: 20),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         '${widget.keyword} 추천 결과',
-        style: const TextStyle(color: Color(0xFF2D3142), fontSize: 18, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Color(0xFF2D3142),
+            fontSize: 18,
+            fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
     );
   }
 }
-
-
-

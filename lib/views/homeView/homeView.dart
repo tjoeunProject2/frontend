@@ -28,7 +28,7 @@ class HomeView extends ConsumerWidget {
       koreanName: '국화',
       season: '가을',
       occasion: '졸업식',
-      tag: '클래식',
+      tag: '가을',
       imageUrl: 'assets/flower1.jpg',
       description: '새로운 시작을 축하하는 꽃',
     );
@@ -39,7 +39,7 @@ class HomeView extends ConsumerWidget {
       koreanName: '장미',
       season: '사계절',
       occasion: '기념일',
-      tag: '큐레이션',
+      tag: '사계절',
       imageUrl: 'assets/flower2.jpg',
       description: '영원한 사랑을 상징하는 꽃',
     );

@@ -117,7 +117,9 @@ class LoginView extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(onPressed: () {}, child: const Text('비밀번호찾기', style: TextStyle(color: Colors.grey))),
+                TextButton(onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.resetPassword);
+                }, child: const Text('비밀번호 재설정', style: TextStyle(color: Colors.grey))),
                 const Text(' | ', style: TextStyle(color: Colors.grey)),
                 TextButton(
                     onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.register),
