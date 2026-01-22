@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/views/user/loginView.dart';
 import '../../viewmodels/flower_detail_vm.dart';
+import '../../viewmodels/storage_vm.dart';
 import '../../services/kakao_share_service.dart';
 import '../../common/widgets/flower_custom_dialog.dart';
 
 class DetailAppBar extends ConsumerWidget {
   final String flowerId;
   final bool isGuest; // 부모로부터 전달받은 게스트 상태
+  final VoidCallback? onSavePressed; // 콜백 추가
   
   const DetailAppBar({
     super.key,
     required this.flowerId,
     required this.isGuest,
+    this.onSavePressed,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vm = ref.watch(flowerDetailViewModelProvider(flowerId));
+    final storageVm = ref.read(storageViewModelProvider);
     
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -39,6 +43,11 @@ class DetailAppBar extends ConsumerWidget {
                 ),
                 onPressed: () async {
                   if(!isGuest) {
+                    // 상세 페이지의 꽃 데이터가 로드되었는지 확인
+                    final flower = vm.flower;
+                    if(flower != null) {
+                      await storageVm.saveFlower(flower);
+                    }
                     // 로그인 된 경우 : 기존 좋아요 토글 로직 실행
                     await vm.toggleFavorite();
 

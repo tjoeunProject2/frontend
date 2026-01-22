@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/storage_vm.dart';
+import '../../viewmodels/liked_flowers_vm.dart';
 import 'storageHeader.dart';
 import 'storageFilterTab.dart';
 import 'storageCard.dart';
+import '../../models/flower.dart';
 
 class StorageView extends ConsumerStatefulWidget {
   const StorageView({super.key});
@@ -31,8 +33,14 @@ class _StorageViewState extends ConsumerState<StorageView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storageViewModelProvider);
+    final likedFlowersVm = ref.watch(likedFlowersViewModelProvider);
     print('[StorageView] build 호출 - favorites: ${viewModel.favorites.length}, filteredFlowers: ${viewModel.filteredFlowers.length}');
     const purpleTheme = Color(0xFF9E7AFF);
+
+    // 탭에 따라 보여줄 리스트 결정
+    final List<Flower> displayedFlowers = viewModel.selectedTabIndex == 0
+        ? viewModel.filteredFlowers // 0번 탭 (저장한 꽃)
+        : likedFlowersVm.likedFlowers; // 1번 탭 (관심있는 꽃)
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -42,7 +50,7 @@ class _StorageViewState extends ConsumerState<StorageView> {
             // 1. 검색 모드에 따라 헤더 또는 검색창 표시
             viewModel.isSearching
                 ? _buildSearchBar(viewModel, purpleTheme)
-            : StorageHeader(
+                : StorageHeader(
               title: '나의 꽃 보관함',
               subtitle: '소중하게 간직한 당신의 꽃 이야기',
               primaryColor: purpleTheme,
@@ -62,8 +70,8 @@ class _StorageViewState extends ConsumerState<StorageView> {
             // 3. 그리드 영역
             Expanded(
               child: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : viewModel.filteredFlowers.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : displayedFlowers.isEmpty
                   ? const Center(child: Text("보관함에 해당하는 꽃이 없습니다."))
                   : GridView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -73,23 +81,18 @@ class _StorageViewState extends ConsumerState<StorageView> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                itemCount: viewModel.filteredFlowers.length,
+                itemCount: displayedFlowers.length,
                 itemBuilder: (context, index) {
-                  final flower = viewModel.filteredFlowers[index];
+                  final flower = displayedFlowers[index];
 
                   return FlowerStorageCard(
                     flower: flower,
                     primaryColor: purpleTheme,
-                    onFavoriteToggle: () {
-                      // "관심있는 꽃" 탭에서만 하트 토글 (제거)
-                      if (viewModel.selectedTabIndex == 1) {
-                        viewModel.toggleLikeStatus(flower);
-                      }
-                      // "저장한 꽃" 탭에서는 하트 토글 (관심있는 꽃으로 추가)
-                      else if (viewModel.selectedTabIndex == 0) {
-                        viewModel.toggleLikeStatus(flower);
-                      }
-                    },
+                    // 이 꽃이 좋아요 상태인지 공통 Provider에서 확인
+                    isFavorite: likedFlowersVm.isLiked(flower.id),
+                    onFavoriteToggle: () =>
+                      // 홈 화면과 동일한 Provider의 함수를 호출해 상태 연동
+                      likedFlowersVm.toggleLike(flower),
                     onDelete: viewModel.selectedTabIndex == 0
                         ? () => viewModel.deleteFavorite(flower)
                         : null,
