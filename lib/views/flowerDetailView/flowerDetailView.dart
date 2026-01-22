@@ -8,8 +8,15 @@ import 'flowerMessageCard.dart';
 
 class FlowerDetailView extends ConsumerStatefulWidget {
   final String flowerId;
+  final bool isGuest; // 게스트 여부
   
-  const FlowerDetailView({super.key, required this.flowerId});
+  const FlowerDetailView(
+      {super.key,
+        required this.flowerId,
+        // 기본값은 false로 설정하여, 일반적인 앱 네비게이션 시에는 별도 설정 없이 '로그인 유저'로 동작하게 함
+        // 딥링크를 통해 들어올 때만 이 값을 true로 설정하여 전달함
+        this.isGuest = false,
+      });
 
   @override
   ConsumerState<FlowerDetailView> createState() => _FlowerDetailViewState();
@@ -19,10 +26,14 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 페이지가 다시 보일 때마다 좋아요 상태 새로고침
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(flowerDetailViewModelProvider(widget.flowerId)).refreshFavoriteStatus();
-    });
+    // 게스트가 아닐 때(로그인 상태)만 상태를 새로고침 함
+    if (!widget.isGuest) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(flowerDetailViewModelProvider(widget.flowerId))
+            .refreshFavoriteStatus();
+      });
+    }
   }
 
   @override
@@ -37,7 +48,10 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DetailAppBar(flowerId: widget.flowerId),         // 2. 상단 앱바 위젯
+                  DetailAppBar(
+                      flowerId: widget.flowerId,
+                      isGuest: widget.isGuest, // 게스트 여부 전달
+                  ),         // 2. 상단 앱바 위젯
                   const SizedBox(height: 100),
                   const FlowerInfoSection(),    // 3. 꽃 스토리 섹션 위젯
                   const SizedBox(height: 20),

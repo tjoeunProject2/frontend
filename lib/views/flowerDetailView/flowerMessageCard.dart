@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../common/widgets/flower_custom_dialog.dart';
 
 class FlowerMessageCard extends StatelessWidget {
   const FlowerMessageCard({super.key});
@@ -38,8 +39,11 @@ class FlowerMessageCard extends StatelessWidget {
       onPressed: () {
         Clipboard.setData(ClipboardData(text: text)).then((_) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('문구가 클립보드에 복사되었습니다.'), duration: Duration(seconds: 2)),
+            // 분리된 다이얼로그 호출
+            FlowerCustomDialog.show(
+              context,
+              title: "복사 완료!",
+              content: '향기로운 꽃말 문구가\n클립보드에 복사되었습니다.',
             );
           }
         });
@@ -47,7 +51,7 @@ class FlowerMessageCard extends StatelessWidget {
       icon: const Icon(Icons.copy, size: 18),
       label: const Text('문구 복사하기'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF7C4DFF),
+        backgroundColor: const Color(0xFF9575CD),
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
