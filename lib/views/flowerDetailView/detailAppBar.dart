@@ -21,7 +21,10 @@ class DetailAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vm = ref.watch(flowerDetailViewModelProvider(flowerId));
-    final storageVm = ref.read(storageViewModelProvider);
+    final storageVm = ref.watch(storageViewModelProvider);
+
+    // 현재 보관함에 저장되어 있는지 확인
+    final bool isSavedInStorage = storageVm.isSaved(flowerId);
     
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -38,27 +41,33 @@ class DetailAppBar extends ConsumerWidget {
               IconButton(
                 iconSize: 33,
                 icon: Icon(
-                  vm.isFavorite ? Icons.bookmark : Icons.bookmark_border,
-                  color: vm.isFavorite ? Color(0xFF7C4DFF) : Colors.white,
+                  isSavedInStorage ? Icons.bookmark : Icons.bookmark_border,
+                  color: isSavedInStorage ? Color(0xFF7C4DFF) : Colors.white,
                 ),
                 onPressed: () async {
                   if(!isGuest) {
                     // 상세 페이지의 꽃 데이터가 로드되었는지 확인
                     final flower = vm.flower;
-                    if(flower != null) {
-                      await storageVm.saveFlower(flower);
-                    }
-                    // 로그인 된 경우 : 기존 좋아요 토글 로직 실행
-                    await vm.toggleFavorite();
+                    if (flower != null) {
+                      if (isSavedInStorage) {
+                        // 저장 취소 로직
+                        await storageVm.deleteFavorite(flower);
+                        await vm.toggleFavorite();
+                      } else {
+                        // 저장 로직
+                        await storageVm.saveFlower(flower);
+                        await vm.toggleFavorite();
 
-                    // 저장이 완료 되었을 때만 수채화 다이얼로그 띄우기
-                    if(context.mounted && vm.isFavorite ) {
-                      FlowerCustomDialog.show(
-                        context,
-                        title: '보관함 저장 완료!',
-                        content: '선택하신 꽃 정보가\n나의 보관함에 안전하게 담겼습니다.',
-                        icon: Icons.bookmark_add,
-                      );
+                        // 저장이 완료 되었을 때만 수채화 다이얼로그 띄우기
+                        if (context.mounted) {
+                          FlowerCustomDialog.show(
+                            context,
+                            title: '보관함 저장 완료!',
+                            content: '선택하신 꽃 정보가\n나의 보관함에 안전하게 담겼습니다.',
+                            icon: Icons.bookmark_add,
+                          );
+                        }
+                      }
                     }
                   } else {
                     // 로그인 안 된 경우(게스트): 알림창 띄우기

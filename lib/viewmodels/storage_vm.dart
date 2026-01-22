@@ -15,6 +15,20 @@ class StorageViewModel extends ChangeNotifier {
   static const String _storageKey = 'saved_flowers';
   static const String _viewHistoryKey = 'view_history_flowers';
 
+  // 해당 꽃이 저장되어 있는지 확인하는 함수 추가
+  bool isSaved(String id) {
+    return _favorites.any((f) => f.id == id);
+  }
+
+  // 저장/삭제를 한 번에 처리하는 토글 함수 (선택 사항)
+  Future<void> toggleSave(Flower flower) async {
+    if (isSaved(flower.id)) {
+      await deleteFavorite(flower);
+    } else {
+      await saveFlower(flower);
+    }
+  }
+
   final _viewHistoryService = GetViewHistoryService();
   final _deleteViewHistoryService = DeleteViewHistoryService();
   final _deleteAllViewHistoryService = DeleteAllViewHistoryService();
