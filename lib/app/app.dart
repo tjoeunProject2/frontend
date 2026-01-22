@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'routes.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FloritApp extends StatelessWidget {
+  // 딥링크 서비스의 전역 키를 전달받음
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const FloritApp({super.key, required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // 딥링크 서비스의 키를 여기에 연결함
+      navigatorKey: navigatorKey,
       title: 'Florit',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
