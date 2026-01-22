@@ -49,6 +49,20 @@ class StorageViewModel extends ChangeNotifier {
     }
     return list;
   }
+  
+  // 해당 꽃이 저장되어 있는 확인하는 함수
+  bool isSaved(String id) {
+    return _favorites.any((f) => f.id == id);
+  }
+
+  // 저장/삭제를 한 번에 처리하는 토글 함수
+  Future<void> toggleSave(Flower flower) async {
+    if (isSaved(flower.id)) {
+      await deleteFavorite(flower);
+    } else {
+      await saveFlower(flower);
+    }
+  }
 
     // 상세 페이지에서 호출할 '저장' 함수 추가
      Future<void> saveFlower(Flower flower) async {
