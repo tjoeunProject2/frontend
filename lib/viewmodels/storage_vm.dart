@@ -12,8 +12,9 @@ import '../services/storage/token_storage.dart';
 
 // ViewModel
 class StorageViewModel extends ChangeNotifier {
-  static const String _storageKey = 'liked_flowers';
+  static const String _storageKey = 'saved_flowers';
   static const String _viewHistoryKey = 'view_history_flowers';
+
   final _viewHistoryService = GetViewHistoryService();
   final _deleteViewHistoryService = DeleteViewHistoryService();
   final _deleteAllViewHistoryService = DeleteAllViewHistoryService();
@@ -37,28 +38,30 @@ class StorageViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // 탭 + 검색어 필터링된 리스트 getter
+  // 탭 + 검색어 필터링된 리스트 getter (Tab 0: 저장한 꽃 전용)
   List<Flower> get filteredFlowers {
-    List<Flower> list;
-    
-    // 탭에 따라 리스트 선택
-    if (selectedTabIndex == 0) {
-      // 저장한 꽃: 즐겨찾기만
-      list = _favorites;
-    } else {
-      // 관심있는 꽃: 조회 기록
-      list = _viewHistory;
-    }
-
-    // 검색어 필터링
+    List<Flower> list = _favorites;
     if (searchQuery.isNotEmpty) {
       list = list.where((f) =>
-        f.koreanName.contains(searchQuery) || 
-        (f.description?.contains(searchQuery) ?? false)
+      f.koreanName.contains(searchQuery) ||
+          (f.description?.contains(searchQuery) ?? false)
       ).toList();
     }
     return list;
   }
+
+    // 상세 페이지에서 호출할 '저장' 함수 추가
+     Future<void> saveFlower(Flower flower) async {
+      try {
+         if (!_favorites.any((f) => f.id == flower.id)) {
+           _favorites.insert(0, flower);
+           await _syncFavoritesToStorage();
+           notifyListeners();
+         }
+       } catch (e) {
+         if (kDebugMode) debugPrint('꽃 저장 오류: $e');
+       }
+     }
 
   // 조회 기록 불러오기
   Future<void> loadViewHistory() async {
@@ -115,10 +118,9 @@ class StorageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 즐겨찾기 불러오기
+  // 즐겨찾기(저장한 꽃) 불러오기
   Future<void> loadFavorites() async {
     _isLoading = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
@@ -159,6 +161,13 @@ class StorageViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  // 저장소 동기화 헬퍼
+  Future<void> _syncFavoritesToStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(_favorites.map((f) => f.toJson()).toList());
+    await prefs.setString(_storageKey, jsonString);
   }
 
   // 조회 기록 삭제

@@ -5,6 +5,7 @@ import '../../viewmodels/flower_detail_vm.dart';
 import 'detailAppBar.dart';
 import 'flowerInfoSection.dart';
 import 'flowerMessageCard.dart';
+import '../../viewmodels/storage_vm.dart';
 
 class FlowerDetailView extends ConsumerStatefulWidget {
   final String flowerId;
@@ -38,6 +39,9 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
 
   @override
   Widget build(BuildContext context) {
+    // 현재 상세 페이지의 꽃 데이터를 가져옴
+    final detailVm = ref.watch(flowerDetailViewModelProvider(widget.flowerId));
+    final storageVm = ref.read(storageViewModelProvider);
     return Scaffold(
       body: Stack(
         children: [
@@ -46,11 +50,18 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
           SafeArea(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DetailAppBar(
                       flowerId: widget.flowerId,
                       isGuest: widget.isGuest, // 게스트 여부 전달
+                      onSavePressed: () {
+                      if (detailVm.flower != null) {
+                        storageVm.saveFlower(detailVm.flower!);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('보관함의 "저장한 꽃"에 추가되었습니다.')),
+                        );
+                      }
+                    },
                   ),         // 2. 상단 앱바 위젯
                   const SizedBox(height: 100),
                   const FlowerInfoSection(),    // 3. 꽃 스토리 섹션 위젯

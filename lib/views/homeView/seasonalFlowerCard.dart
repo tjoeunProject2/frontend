@@ -9,6 +9,7 @@ class SeasonalFlowerCard extends StatelessWidget {
   final bool isDark;
   final bool isLiked;
   final VoidCallback? onLikeTap;
+  final bool isFullWidth;
 
   const SeasonalFlowerCard({
     super.key,
@@ -20,12 +21,13 @@ class SeasonalFlowerCard extends StatelessWidget {
     this.isDark = false,
     this.isLiked = false,
     this.onLikeTap,
+    this.isFullWidth = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
+      width: isFullWidth ? double.infinity : 260,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         image: DecorationImage(

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/views/homeView/seasonalFlowerListView.dart';
 import '../../common/widgets/search_widget.dart';
 import '../../viewmodels/profile_vm.dart';
 import '../../viewmodels/liked_flowers_vm.dart';
@@ -103,7 +104,16 @@ class HomeView extends ConsumerWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final allFlowers = [flower1 , flower2];
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SeasonalFlowerListView(flowers: allFlowers),
+                        ),
+                        );
+                      },
                       child: const Text(
                         '전체보기',
                         style: TextStyle(

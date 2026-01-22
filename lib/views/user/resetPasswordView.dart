@@ -11,7 +11,7 @@ class ResetPasswordView extends ConsumerWidget {
     // ViewModel 상태 구독
     final vm = ref.watch(resetPasswordViewModelProvider);
 
-    double headerHeight = 250.0;
+    double headerHeight = 300.0;
 
     return Scaffold(
       backgroundColor: Colors.white,
