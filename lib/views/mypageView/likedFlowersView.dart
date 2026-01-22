@@ -134,7 +134,7 @@ class LikedFlowersView extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('${flower.koreanName}을(를) 좋아요 취소했습니다'),
-                    ㄹ      duration: const Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     },
