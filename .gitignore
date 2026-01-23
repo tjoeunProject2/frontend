@@ -124,3 +124,4 @@ app.*.symbols
 .idea/*.xml
 
 android/app/src/main/AndroidManifest.xml
+/.idea

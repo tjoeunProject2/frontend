@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:frontend/services/deep_link_service.dart';
 import 'app/app.dart';
 import 'services/notification_service.dart';
@@ -12,6 +13,9 @@ void main() async {
 
   // 카카오 SDK 초기화
   KakaoSdk.init(nativeAppKey: EnvConfig.kakaoNativeAppKey);
+  
+  // 카카오 맵 초기화
+  AuthRepository.initialize(appKey: EnvConfig.kakaoNativeAppKey);
 
   // 알림 서비스 초기화
   final notificationService = NotificationService();
