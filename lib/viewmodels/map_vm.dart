@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/location/location_service.dart';
 import '../services/shops/nearbyService.dart';
 import '../models/flowerShop.dart';
@@ -13,7 +12,8 @@ class MapViewModel extends ChangeNotifier {
   final _locationService = LocationService();
   final _nearbyService = NearbyService();
 
-  LatLng? currentLocation;
+  double? currentLatitude;
+  double? currentLongitude;
   List<FlowerShop> shops = [];
   FlowerShop? selectedShop;
   bool isLoading = false;
@@ -37,7 +37,8 @@ class MapViewModel extends ChangeNotifier {
       // 임시 하드코딩: 강남역 위치
       const gangnamLat = 37.498095; // 임시
       const gangnamLng = 127.027610; // 임시
-      currentLocation = const LatLng(gangnamLat, gangnamLng); // 임시
+      currentLatitude = gangnamLat; // 임시
+      currentLongitude = gangnamLng; // 임시
 
       // 주변 꽃집 검색
       // await loadNearbyShops(position.latitude, position.longitude);
@@ -90,13 +91,14 @@ class MapViewModel extends ChangeNotifier {
 
   // 특정 위치로 검색 (검색 기능에서 사용)
   Future<void> searchLocation(double lat, double lng, {double radius = 5.0}) async {
-    currentLocation = LatLng(lat, lng);
+    currentLatitude = lat;
+    currentLongitude = lng;
     await loadNearbyShops(lat, lng, radius: radius);
   }
 
   // 키워드로 꽃집 검색
   Future<void> searchShopsByKeyword(String keyword) async {
-    if (currentLocation == null) return;
+    if (currentLatitude == null || currentLongitude == null) return;
     
     isLoading = true;
     errorMessage = null;
@@ -104,8 +106,8 @@ class MapViewModel extends ChangeNotifier {
 
     try {
       await loadNearbyShops(
-        currentLocation!.latitude,
-        currentLocation!.longitude,
+        currentLatitude!,
+        currentLongitude!,
         radius: 10.0, // 검색 시 반경 확대
         keyword: keyword,
       );
@@ -120,12 +122,12 @@ class MapViewModel extends ChangeNotifier {
 
   // 검색 초기화
   Future<void> clearSearch() async {
-    if (currentLocation == null) return;
+    if (currentLatitude == null || currentLongitude == null) return;
     
     currentKeyword = null;
     await loadNearbyShops(
-      currentLocation!.latitude,
-      currentLocation!.longitude,
+      currentLatitude!,
+      currentLongitude!,
     );
   }
 
@@ -148,7 +150,8 @@ class MapViewModel extends ChangeNotifier {
 
   // 특정 꽃집으로 이동 (마이페이지에서 위치보기)
   void moveToShop(FlowerShop shop) {
-    currentLocation = LatLng(shop.lat, shop.lng);
+    currentLatitude = shop.lat;
+    currentLongitude = shop.lng;
     selectedShop = shop;
     // shops에 해당 꽃집이 없으면 추가
     if (!shops.any((s) => s.id == shop.id)) {

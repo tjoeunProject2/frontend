@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import '../../viewmodels/map_vm.dart';
+import '../../config/env_config.dart';
 import 'mapSearchBar.dart';
 import 'mapErrorMessage.dart';
 import 'myLocationButton.dart';
@@ -17,9 +18,8 @@ class MapView extends ConsumerStatefulWidget {
 }
 
 class _MapViewState extends ConsumerState<MapView> {
-  GoogleMapController? _mapController;
-  Set<Marker> _markers = {};
-  double _currentZoom = 15.0;
+  KakaoMapController? _mapController;
+  double _currentZoom = 3.0;
 
   @override
   void initState() {
@@ -30,51 +30,39 @@ class _MapViewState extends ConsumerState<MapView> {
     });
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  void _onMapCreated(KakaoMapController controller) {
     _mapController = controller;
+    // 마커 초기화
+    _updateMarkers();
   }
 
-  // 화면 크기에 따른 반지름 계산 (km)
-  double _calculateRadius(double latDiff, double lngDiff) {
-    // 위도 1도 ≈ 111km, 경도는 위도에 따라 다르지만 평균 약 88km (한국 기준)
-    const kmPerLatDegree = 111.0;
-    const kmPerLngDegree = 88.0;
+  Future<void> _updateMarkers() async {
+    if (_mapController == null) return;
     
-    final latDistance = latDiff * kmPerLatDegree;
-    final lngDistance = lngDiff * kmPerLngDegree;
-    
-    // 대각선 거리의 절반을 반지름으로 사용
-    final diagonal = (latDistance * latDistance + lngDistance * lngDistance);
-    final radius = (diagonal / 2).clamp(1.0, 50.0); // 최소 1km, 최대 50km
-    
-    return radius;
-  }
-
-  void _updateMarkers() {
     final vm = ref.read(mapViewModelProvider);
-    _markers = vm.shops.map((shop) {
-      return Marker(
-        markerId: MarkerId(shop.name),
-        position: LatLng(shop.lat, shop.lng),
-        onTap: () {
-          vm.selectShop(shop);
-        },
+    final markers = <Marker>[];
+    
+    for (var shop in vm.shops) {
+      markers.add(
+        Marker(
+          markerId: shop.id.toString(),
+          latLng: LatLng(shop.lat, shop.lng),
+          width: 30,
+          height: 40,
+        ),
       );
-    }).toSet();
+    }
+    
+    if (markers.isNotEmpty) {
+      await _mapController!.addMarker(markers: markers);
+    }
   }
 
   Future<void> _moveToCurrentLocation() async {
     final vm = ref.read(mapViewModelProvider);
     await vm.loadCurrentLocation();
-    if (_mapController != null && vm.currentLocation != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(
-            vm.currentLocation!.latitude,
-            vm.currentLocation!.longitude,
-          ),
-        ),
-      );
+    if (_mapController != null && vm.currentLatitude != null && vm.currentLongitude != null) {
+      _mapController!.setCenter(LatLng(vm.currentLatitude!, vm.currentLongitude!));
     }
   }
 
@@ -95,52 +83,28 @@ class _MapViewState extends ConsumerState<MapView> {
     final vm = ref.watch(mapViewModelProvider);
 
     // 마커 업데이트
-    if (vm.shops.isNotEmpty) {
+    if (vm.shops.isNotEmpty && _mapController != null) {
       _updateMarkers();
     }
 
     return Scaffold(
       body: Stack(
         children: [
-          // Google Maps
-          vm.currentLocation == null
+          // Kakao Map
+          vm.currentLatitude == null || vm.currentLongitude == null
               ? const Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      vm.currentLocation!.latitude,
-                      vm.currentLocation!.longitude,
-                    ),
-                    zoom: 15,
-                  ),
-                  markers: _markers,
-                  myLocationEnabled: false,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
-                  buildingsEnabled: false,
-                  trafficEnabled: false,
-                  onCameraIdle: () async {
-                    // 카메라 이동이 완료되면 해당 위치의 꽃집 검색
-                    if (_mapController != null) {
-                      final bounds = await _mapController!.getVisibleRegion();
-                      final lat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
-                      final lng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
-                      
-                      // 화면에 보이는 영역의 반지름 계산 (km 단위)
-                      final latDiff = bounds.northeast.latitude - bounds.southwest.latitude;
-                      final lngDiff = bounds.northeast.longitude - bounds.southwest.longitude;
-                      final radius = _calculateRadius(latDiff, lngDiff);
-                      
-                      await ref.read(mapViewModelProvider).searchShopsAtCameraPosition(lat, lng, radius: radius);
-                    }
+              : KakaoMap(
+                  onMapCreated: (controller) async {
+                    _onMapCreated(controller);
+                    // 초기 꽃집 검색
+                    final center = await controller.getCenter();
+                    await ref.read(mapViewModelProvider).searchShopsAtCameraPosition(
+                      center.latitude,
+                      center.longitude,
+                      radius: 5.0,
+                    );
                   },
-                  onCameraMove: (position) {
-                    setState(() {
-                      _currentZoom = position.zoom;
-                    });
-                  },
+                  center: LatLng(vm.currentLatitude!, vm.currentLongitude!),
                 ),
 
           // 상단 검색바
