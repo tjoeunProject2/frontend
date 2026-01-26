@@ -26,8 +26,7 @@ class FloritApp extends StatelessWidget {
       ),
       // initialRoute: AppRoutes.home,
       // onGenerateRoute: AppRoutes.generateRoute,
-
-
+      
 
       initialRoute: AppRoutes.root,
       routes: AppRoutes.routes,

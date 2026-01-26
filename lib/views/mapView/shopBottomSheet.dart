@@ -5,7 +5,6 @@ import '../../models/flowerShop.dart';
 import '../../viewmodels/liked_shops_vm.dart';
 import '../../common/widgets/navigation_app_selector.dart';
 
-/// 꽃집 정보 하단 시트 (간략)
 class ShopBottomSheet extends ConsumerWidget {
   final FlowerShop shop;
   final VoidCallback onClose;
@@ -21,10 +20,13 @@ class ShopBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final likedShopsVm = ref.watch(likedShopsViewModelProvider);
+    final phoneNumber = shop.phone.trim();
+    final hasPhoneNumber = phoneNumber.isNotEmpty;
+    final address = shop.address.trim();
+    final hasAddress = address.isNotEmpty;
 
     return GestureDetector(
       onVerticalDragUpdate: (details) {
-        // 위로 드래그 감지
         if (details.primaryDelta! < -5) {
           onExpand();
         }
@@ -46,7 +48,6 @@ class ShopBottomSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 드래그 핸들
             Center(
               child: Container(
                 width: 40,
@@ -70,7 +71,6 @@ class ShopBottomSheet extends ConsumerWidget {
                     ),
                   ),
                 ),
-                // 좋아요 아이콘
                 IconButton(
                   icon: Icon(
                     likedShopsVm.isLiked(shop.id)
@@ -86,8 +86,8 @@ class ShopBottomSheet extends ConsumerWidget {
                       SnackBar(
                         content: Text(
                           likedShopsVm.isLiked(shop.id)
-                              ? '${shop.name}을(를) 가고 싶은 꽃집에 추가했습니다'
-                              : '${shop.name}을(를) 가고 싶은 꽃집에서 제거했습니다',
+                              ? '${shop.name}을(를) 관심 꽃집에 추가했습니다'
+                              : '${shop.name}을(를) 관심 꽃집에서 제거했습니다',
                         ),
                         duration: const Duration(seconds: 2),
                         behavior: SnackBarBehavior.floating,
@@ -108,7 +108,7 @@ class ShopBottomSheet extends ConsumerWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    shop.address,
+                    hasAddress ? address : '주소 정보 없음',
                     style: const TextStyle(color: Colors.grey),
                   ),
                 ),
@@ -120,7 +120,7 @@ class ShopBottomSheet extends ConsumerWidget {
                 const Icon(Icons.phone, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
-                  shop.phone,
+                  hasPhoneNumber ? phoneNumber : '전화번호 없음',
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],
@@ -141,19 +141,24 @@ class ShopBottomSheet extends ConsumerWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final phoneNumber = shop.phone.replaceAll(RegExp(r'[^0-9]'), '');
-                      final url = Uri.parse('tel:$phoneNumber');
+                    onPressed: hasPhoneNumber
+                        ? () async {
+                      final digitsOnly =
+                      phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+                      final url = Uri.parse('tel:$digitsOnly');
                       if (await canLaunchUrl(url)) {
                         await launchUrl(url);
                       } else {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('전화를 걸 수 없습니다')),
+                            const SnackBar(
+                              content: Text('전화 앱을 열 수 없습니다'),
+                            ),
                           );
                         }
                       }
-                    },
+                    }
+                        : null,
                     icon: const Icon(Icons.phone, size: 20),
                     label: const Text('전화하기'),
                     style: OutlinedButton.styleFrom(

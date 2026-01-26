@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import '../services/location/location_service.dart';
 import '../services/shops/nearbyService.dart';
 import '../models/flowerShop.dart';
@@ -12,8 +14,7 @@ class MapViewModel extends ChangeNotifier {
   final _locationService = LocationService();
   final _nearbyService = NearbyService();
 
-  double? currentLatitude;
-  double? currentLongitude;
+  LatLng? currentLocation;
   List<FlowerShop> shops = [];
   FlowerShop? selectedShop;
   bool isLoading = false;
@@ -33,12 +34,11 @@ class MapViewModel extends ChangeNotifier {
       //   throw Exception('위치 정보를 가져올 수 없습니다.');
       // }
       // currentLocation = LatLng(position.latitude, position.longitude);
-      
+
       // 임시 하드코딩: 강남역 위치
       const gangnamLat = 37.498095; // 임시
       const gangnamLng = 127.027610; // 임시
-      currentLatitude = gangnamLat; // 임시
-      currentLongitude = gangnamLng; // 임시
+      currentLocation = LatLng(gangnamLat, gangnamLng); // 임시
 
       // 주변 꽃집 검색
       // await loadNearbyShops(position.latitude, position.longitude);
@@ -54,7 +54,7 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // 주변 꽃집 검색
-  Future<void> loadNearbyShops(double lat, double lng, {double radius = 5.0, String? keyword}) async {
+  Future<void> loadNearbyShops(double lat, double lng, {int radius = 1000, String? keyword}) async {
     try {
       final response = await _nearbyService.getNearbyShops(
         latitude: lat,
@@ -62,14 +62,17 @@ class MapViewModel extends ChangeNotifier {
         radius: radius,
         keyword: keyword,
       );
-      
+
       if (response.success && response.shops != null) {
         shops = response.shops!;
         currentKeyword = keyword;
+        if (kDebugMode) {
+          debugPrint('Loaded ${shops.length} shops at ($lat, $lng).');
+        }
       } else {
         errorMessage = response.message;
       }
-      
+
       notifyListeners();
     } catch (e) {
       errorMessage = '주변 꽃집 검색에 실패했습니다: $e';
@@ -90,25 +93,24 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // 특정 위치로 검색 (검색 기능에서 사용)
-  Future<void> searchLocation(double lat, double lng, {double radius = 5.0}) async {
-    currentLatitude = lat;
-    currentLongitude = lng;
+  Future<void> searchLocation(double lat, double lng, {int radius = 1000}) async {
+    currentLocation = LatLng(lat, lng);
     await loadNearbyShops(lat, lng, radius: radius);
   }
 
   // 키워드로 꽃집 검색
   Future<void> searchShopsByKeyword(String keyword) async {
-    if (currentLatitude == null || currentLongitude == null) return;
-    
+    if (currentLocation == null) return;
+
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
     try {
       await loadNearbyShops(
-        currentLatitude!,
-        currentLongitude!,
-        radius: 10.0, // 검색 시 반경 확대
+        currentLocation!.latitude,
+        currentLocation!.longitude,
+        radius: 1000, // 검색 시 반경 확대
         keyword: keyword,
       );
       isLoading = false;
@@ -122,17 +124,17 @@ class MapViewModel extends ChangeNotifier {
 
   // 검색 초기화
   Future<void> clearSearch() async {
-    if (currentLatitude == null || currentLongitude == null) return;
-    
+    if (currentLocation == null) return;
+
     currentKeyword = null;
     await loadNearbyShops(
-      currentLatitude!,
-      currentLongitude!,
+      currentLocation!.latitude,
+      currentLocation!.longitude,
     );
   }
 
   // 카메라 위치로 꽃집 검색 (지도 이동 시 사용)
-  Future<void> searchShopsAtCameraPosition(double lat, double lng, {double radius = 5.0}) async {
+  Future<void> searchShopsAtCameraPosition(double lat, double lng, {int radius = 1000}) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -150,8 +152,7 @@ class MapViewModel extends ChangeNotifier {
 
   // 특정 꽃집으로 이동 (마이페이지에서 위치보기)
   void moveToShop(FlowerShop shop) {
-    currentLatitude = shop.lat;
-    currentLongitude = shop.lng;
+    currentLocation = LatLng(shop.lat, shop.lng);
     selectedShop = shop;
     // shops에 해당 꽃집이 없으면 추가
     if (!shops.any((s) => s.id == shop.id)) {
