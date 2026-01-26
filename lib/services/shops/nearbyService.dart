@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../auth/authInterceptor.dart';
 import '../../models/flowerShop.dart';
 
 class NearbyService {
-  static const String baseUrl = 'http://localhost:8080/api';
+  final _auth = AuthInterceptor();
 
   Future<NearbyShopsResponse> getNearbyShops({
     required double latitude,
     required double longitude,
-    double radius = 5.0,
+    int radius = 1000,
     String? keyword,
   }) async {
     try {
@@ -20,12 +21,11 @@ class NearbyService {
         if (keyword != null && keyword.isNotEmpty) 'keyword': keyword,
       };
 
-      final uri = Uri.parse('$baseUrl/shops/nearby')
+      final uri = Uri.parse('${AuthInterceptor.baseUrl}/shops/nearby')
           .replace(queryParameters: queryParams);
 
-      final response = await http.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
+      final response = await _auth.authenticatedRequest(
+        request: (headers) => http.get(uri, headers: headers),
       );
 
       if (response.statusCode == 200) {

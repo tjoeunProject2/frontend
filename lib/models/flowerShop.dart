@@ -22,15 +22,68 @@ class FlowerShop {
   });
 
   factory FlowerShop.fromJson(Map<String, dynamic> json) {
+    String firstNonEmptyString(List<dynamic> values) {
+      for (final value in values) {
+        if (value is String && value.trim().isNotEmpty) {
+          return value;
+        }
+      }
+      return '';
+    }
+
+    double parseDouble(dynamic value) {
+      if (value is num) {
+        return value.toDouble();
+      }
+      if (value is String) {
+        return double.tryParse(value) ?? 0.0;
+      }
+      return 0.0;
+    }
+
+    final distanceValue = json['distance'];
+    final distance = distanceValue is num
+        ? distanceValue.round()
+        : int.tryParse(distanceValue?.toString() ?? '') ?? 0;
+
+    final name = json['name'] as String? ??
+        json['placeName'] as String? ??
+        json['place_name'] as String? ??
+        '';
+    final idValue = json['id'] as String? ??
+        json['placeId'] as String? ??
+        json['place_id'] as String? ??
+        name;
+    final lat = parseDouble(json['lat'] ?? json['latitude'] ?? json['y']);
+    final lng = parseDouble(json['lng'] ?? json['longitude'] ?? json['x']);
+    final id = idValue.trim().isEmpty
+        ? '${name}_${lat}_${lng}'
+        : idValue;
+
     return FlowerShop(
-      id: json['id'] as String? ?? json['name'] as String, // id가 없으면 name 사용
-      name: json['name'] as String,
-      address: json['address'] as String,
-      lat: (json['lat'] as num).toDouble(),
-      lng: (json['lng'] as num).toDouble(),
-      distance: json['distance'] as int,
-      phone: json['phone'] as String,
-      placeUrl: json['placeUrl'] as String,
+      id: id,
+      name: name,
+      address: firstNonEmptyString([
+        json['address'],
+        json['roadAddress'],
+        json['addressName'],
+        json['address_name'],
+        json['road_address'],
+        json['road_address_name'],
+      ]),
+      lat: lat,
+      lng: lng,
+      distance: distance,
+      phone: firstNonEmptyString([
+        json['phone'],
+        json['phoneNumber'],
+        json['tel'],
+        json['phone_number'],
+      ]),
+      placeUrl: firstNonEmptyString([
+        json['placeUrl'],
+        json['place_url'],
+      ]),
       isLiked: json['isLiked'] as bool? ?? false,
     );
   }
@@ -96,12 +149,12 @@ class FlowerShop {
   @override
   int get hashCode {
     return name.hashCode ^
-        address.hashCode ^
-        lat.hashCode ^
-        lng.hashCode ^
-        distance.hashCode ^
-        phone.hashCode ^
-        placeUrl.hashCode;
+    address.hashCode ^
+    lat.hashCode ^
+    lng.hashCode ^
+    distance.hashCode ^
+    phone.hashCode ^
+    placeUrl.hashCode;
   }
 
   // 거리를 사람이 읽기 쉬운 형태로 반환

@@ -31,7 +31,7 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
 
   void _onSearchSubmitted(String keyword) {
     if (keyword.trim().isEmpty) return;
-    
+
     _focusNode.unfocus();
     ref.read(mapViewModelProvider).searchShopsByKeyword(keyword.trim());
   }

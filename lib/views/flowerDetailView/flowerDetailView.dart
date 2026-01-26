@@ -6,6 +6,8 @@ import 'detailAppBar.dart';
 import 'flowerInfoSection.dart';
 import 'flowerMessageCard.dart';
 import '../../viewmodels/storage_vm.dart';
+import '../../viewmodels/navigation_vm.dart';
+import '../../common/widgets/flower_custom_dialog.dart';
 
 class FlowerDetailView extends ConsumerStatefulWidget {
   final String flowerId;
@@ -42,6 +44,9 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
     // 현재 상세 페이지의 꽃 데이터를 가져옴
     final detailVm = ref.watch(flowerDetailViewModelProvider(widget.flowerId));
     final storageVm = ref.read(storageViewModelProvider);
+
+    final navVm = ref.read(navigationViewModelProvider);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -62,11 +67,51 @@ class _FlowerDetailViewState extends ConsumerState<FlowerDetailView> with RouteA
                         );
                       }
                     },
-                  ),         // 2. 상단 앱바 위젯
+                  ),    // 2. 상단 앱바 위젯
                   const SizedBox(height: 100),
                   const FlowerInfoSection(),    // 3. 꽃 스토리 섹션 위젯
                   const SizedBox(height: 20),
                   const FlowerMessageCard(),    // 4. 메시지 복사 카드 위젯
+
+                  // 주변 꽃집 검색 버튼
+                  const SizedBox(height: 30),
+                  Center( // 버튼을 가운데 정렬하고 너비를 텍스트에 맞춤
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await showDialog(
+                            context: context,
+                            builder: (context) => const FlowerCustomDialog(
+                                title: '지도 이동',
+                                content: '주변 꽃집 검색을 위해 지도로 이동합니다!',
+                                icon: Icons.map_outlined,
+                                buttonText: '확인',
+                            ),
+                        );
+                        ref.read(navigationViewModelProvider).setIndex(1);
+
+                        if (mounted) {
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        }
+                      },
+                      icon: const Icon(Icons.map_outlined, size: 20, color: Color(0xFF9575CD)),
+                      label: const Text(
+                        '주변 꽃집 검색하기',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF9575CD),
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                        side: const BorderSide(color: Color(0xFFD1C4E9), width: 1.5), // 연한 보라색 테두리
+                        backgroundColor: Colors.white.withOpacity(0.8), // 배경을 연하게 설정
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30), // 둥근 캡슐 형태
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 50),
                 ],
               ),

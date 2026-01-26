@@ -18,14 +18,14 @@ class MapScaleBar extends StatelessWidget {
     // 한국 중앙(서울) 위도 37.5도 기준
     const latitude = 37.5;
     const equatorMetersPerPixel = 156543.03392;
-    
+
     // 현재 줌 레벨에서 1픽셀당 미터 계산
     final metersPerPixel = equatorMetersPerPixel * math.cos(latitude * math.pi / 180) / math.pow(2, zoomLevel);
-    
+
     // 화면 너비의 1/4을 스케일바 최대 길이로 사용
     final maxBarWidthPixels = screenWidth / 4;
     final maxDistanceMeters = metersPerPixel * maxBarWidthPixels;
-    
+
     // 적절한 단위와 길이 선택
     if (maxDistanceMeters < 1000) {
       // 1km 미만: m 단위
@@ -65,7 +65,7 @@ class MapScaleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scale = _calculateScale();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Column(

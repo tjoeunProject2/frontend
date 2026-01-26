@@ -5,7 +5,6 @@ import '../../models/flowerShop.dart';
 import '../../viewmodels/liked_shops_vm.dart';
 import '../../common/widgets/navigation_app_selector.dart';
 
-/// 확장된 꽃집 정보 시트
 class ExpandedShopSheet extends ConsumerWidget {
   final FlowerShop shop;
 
@@ -17,6 +16,10 @@ class ExpandedShopSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final likedVm = ref.watch(likedShopsViewModelProvider);
+    final phoneNumber = shop.phone.trim();
+    final hasPhoneNumber = phoneNumber.isNotEmpty;
+    final address = shop.address.trim();
+    final hasAddress = address.isNotEmpty;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
@@ -32,7 +35,6 @@ class ExpandedShopSheet extends ConsumerWidget {
             controller: scrollController,
             padding: const EdgeInsets.all(20),
             children: [
-              // 드래그 핸들
               Center(
                 child: Container(
                   width: 40,
@@ -45,7 +47,6 @@ class ExpandedShopSheet extends ConsumerWidget {
                 ),
               ),
 
-              // 헤더
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -63,7 +64,9 @@ class ExpandedShopSheet extends ConsumerWidget {
                       likedVm.isLiked(shop.id)
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: likedVm.isLiked(shop.id) ? Colors.pink : Colors.grey,
+                      color: likedVm.isLiked(shop.id)
+                          ? Colors.pink
+                          : Colors.grey,
                     ),
                     onPressed: () {
                       likedVm.toggleLike(shop);
@@ -73,17 +76,16 @@ class ExpandedShopSheet extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
 
-              // 정보 섹션
               _ShopInfoRow(
                 icon: Icons.location_on,
                 label: '주소',
-                value: shop.address,
+                value: hasAddress ? address : '주소 정보 없음',
               ),
               const SizedBox(height: 12),
               _ShopInfoRow(
                 icon: Icons.phone,
                 label: '전화번호',
-                value: shop.phone,
+                value: hasPhoneNumber ? phoneNumber : '전화번호 없음',
               ),
               const SizedBox(height: 12),
               _ShopInfoRow(
@@ -96,7 +98,6 @@ class ExpandedShopSheet extends ConsumerWidget {
               const Divider(),
               const SizedBox(height: 24),
 
-              // 설명 섹션
               const Text(
                 '소개',
                 style: TextStyle(
@@ -106,7 +107,8 @@ class ExpandedShopSheet extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                '${shop.name}은(는) 다양한 꽃과 화환을 제공하는 전문 꽃집입니다. 고객의 특별한 순간을 아름답게 만들어 드립니다.',
+                '${shop.name}은(는) 다양한 꽃과 화환을 제공하는 전문 꽃집입니다. '
+                    '고객의 특별한 순간을 아름답게 만들어 드립니다.',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade700,
@@ -116,25 +118,28 @@ class ExpandedShopSheet extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
-              // 버튼들
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final phoneNumber =
-                            shop.phone.replaceAll(RegExp(r'[^0-9]'), '');
-                        final url = Uri.parse('tel:$phoneNumber');
+                      onPressed: hasPhoneNumber
+                          ? () async {
+                        final digitsOnly =
+                        phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+                        final url = Uri.parse('tel:$digitsOnly');
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
                         } else {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('전화를 걸 수 없습니다')),
+                              const SnackBar(
+                                content: Text('전화 앱을 열 수 없습니다'),
+                              ),
                             );
                           }
                         }
-                      },
+                      }
+                          : null,
                       icon: const Icon(Icons.phone, size: 20),
                       label: const Text('전화하기'),
                       style: OutlinedButton.styleFrom(
@@ -185,7 +190,6 @@ class ExpandedShopSheet extends ConsumerWidget {
   }
 }
 
-/// 꽃집 정보 행 위젯
 class _ShopInfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
